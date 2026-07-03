@@ -21,20 +21,22 @@ function LoginContent() {
   const router = useRouter();
 
   const handleVendorLogin = async () => {
-    if (!booth.trim()) { setError("ブース番号を入力してください"); return; }
-    if (!password) { setError("パスワードを入力してください"); return; }
+    const boothVal = booth.trim();
+    const passwordVal = password.trim().replace(/\s/g, "");
+    if (!boothVal) { setError("ブース番号を入力してください"); return; }
+    if (!passwordVal) { setError("パスワードを入力してください"); return; }
     setError("");
     setLoading(true);
     const { data, error: rpcError } = await supabase.rpc("vendor_login", {
-      p_booth_number: booth.trim(),
-      p_password: password,
+      p_booth_number: boothVal,
+      p_password: passwordVal,
     });
     setLoading(false);
     if (rpcError || !data || data.length === 0) {
       setError("ブース番号またはパスワードが違います");
       return;
     }
-    setVendorSession(booth.trim(), password);
+    setVendorSession(boothVal, passwordVal);
     router.push("/dashboard");
   };
 
@@ -91,8 +93,9 @@ function LoginContent() {
             </div>
             <div>
               <label className="block text-[11px] font-bold text-ink-soft tracking-wider mb-1.5">パスワード</label>
-              <input type="password" inputMode="numeric" value={password} onChange={e => setPassword(e.target.value)} placeholder="パスワードを入力"
-                className="w-full bg-surface border-2 border-border rounded-xl px-4 py-3 text-sm text-ink outline-none focus:border-brand" />
+              <input type="text" inputMode="numeric" value={password} onChange={e => setPassword(e.target.value)} placeholder="パスワードを入力"
+                autoComplete="off" autoCorrect="off" autoCapitalize="off" spellCheck={false}
+                className="w-full bg-surface border-2 border-border rounded-xl px-4 py-3 text-sm text-ink outline-none focus:border-brand tracking-[0.5em] font-bold" />
             </div>
             <button onClick={handleVendorLogin} disabled={loading}
               className="w-full bg-brand text-white font-bold py-3.5 rounded-xl text-sm mt-1 disabled:opacity-60">
