@@ -1,13 +1,17 @@
 "use client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import ZoomableImage from "@/components/ZoomableImage";
-import { STREET_HOTSPOTS } from "@/lib/map-data";
+import { STREET_HOTSPOTS, findHotspot } from "@/lib/map-data";
+import { Suspense } from "react";
 
-export default function StreetMapPage() {
+function StreetMapContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const targetBooth = searchParams.get("booth") ? Number(searchParams.get("booth")) : null;
+  const targetHotspot = targetBooth ? findHotspot(targetBooth) : null;
 
   return (
     <div className="max-w-[390px] mx-auto bg-bg min-h-screen flex flex-col">
@@ -15,10 +19,20 @@ export default function StreetMapPage() {
         <Link href="/map"><ArrowLeft size={22} className="text-ink" /></Link>
         <h1 className="text-sm font-bold">② ストリートブース</h1>
       </div>
-      <p className="text-[11px] text-ink-soft text-center py-2">ピンチで拡大・ドラッグで移動 / 番号をタップして出店者を見る</p>
+      <p className="text-[11px] text-ink-soft text-center py-2">
+        {targetBooth ? `ブース ${targetBooth} の位置を表示中` : "ピンチで拡大・ドラッグで移動 / 番号をタップして出店者を見る"}
+      </p>
 
       <div className="flex-1 flex items-center pb-24">
         <ZoomableImage src="/map/street.png" alt="ストリートブース 41〜90番">
+          {targetHotspot && (
+            <>
+              <span className="absolute -translate-x-1/2 -translate-y-1/2 w-[8%] aspect-square rounded-full bg-brand/50 animate-ping"
+                style={{ left: `${targetHotspot.x}%`, top: `${targetHotspot.y}%` }} />
+              <span className="absolute -translate-x-1/2 -translate-y-1/2 w-[6%] aspect-square rounded-full bg-brand border-2 border-white"
+                style={{ left: `${targetHotspot.x}%`, top: `${targetHotspot.y}%` }} />
+            </>
+          )}
           {STREET_HOTSPOTS.map(h => (
             <button
               key={h.number}
@@ -34,4 +48,8 @@ export default function StreetMapPage() {
       <BottomNav />
     </div>
   );
+}
+
+export default function StreetMapPage() {
+  return <Suspense><StreetMapContent /></Suspense>;
 }

@@ -5,6 +5,7 @@ import { ArrowLeft, Heart, MapPin } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import { vibrate } from "@/lib/haptics";
 import { CATEGORIES } from "@/lib/mock-data";
+import { getBoothMapUrl } from "@/lib/map-data";
 import { supabase } from "@/lib/supabase";
 import { getDeviceId } from "@/lib/auth";
 import type { VendorRow, ProductRow } from "@/lib/types";
@@ -116,8 +117,8 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
           </div>
         )}
 
-        <Link href="/map"
-          className="w-full flex items-center justify-center gap-1.5 bg-surface border border-border text-ink-mid text-xs font-bold py-3 rounded-xl">
+        <Link href={getBoothMapUrl(vendor.booth_number)}
+          className="w-full flex items-center justify-center gap-1.5 bg-navy text-white text-xs font-bold py-3 rounded-xl">
           <MapPin size={14} /> マップでブース位置を見る
         </Link>
       </div>

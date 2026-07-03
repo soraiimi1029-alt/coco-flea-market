@@ -96,3 +96,15 @@ function buildSkyHotspots(): Hotspot[] {
   return hotspots;
 }
 export const SKY_HOTSPOTS: Hotspot[] = buildSkyHotspots();
+
+export function getBoothMapUrl(boothNumber: string | number): string {
+  const n = Number(boothNumber);
+  if (n >= 1 && n <= 40) return `/map/gallery?booth=${n}`;
+  if (n >= 41 && n <= 90) return `/map/street?booth=${n}`;
+  return `/map/sky?booth=${n}`;
+}
+
+export function findHotspot(boothNumber: number): Hotspot | null {
+  const all = [...GALLERY_HOTSPOTS, ...STREET_HOTSPOTS, ...SKY_HOTSPOTS];
+  return all.find(h => h.number === boothNumber) ?? null;
+}
