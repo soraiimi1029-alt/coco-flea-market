@@ -1,10 +1,10 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { setVendorSession, setAdminSession } from "@/lib/auth";
 
-export default function LoginPage() {
+function LoginContent() {
   const searchParams = useSearchParams();
   const [tab, setTab] = useState<"vendor" | "admin">("vendor");
 
@@ -124,5 +124,13 @@ export default function LoginPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginContent />
+    </Suspense>
   );
 }
