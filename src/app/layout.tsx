@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import SplashScreen from "@/components/SplashScreen";
 
 export const metadata: Metadata = {
   title: "ココフリマ",
@@ -20,6 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet"/>
       </head>
       <body style={{ fontFamily: "'Noto Sans JP', sans-serif" }}>
+        <SplashScreen />
         {children}
       </body>
     </html>
