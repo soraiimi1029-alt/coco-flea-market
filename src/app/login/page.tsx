@@ -35,11 +35,7 @@ function LoginContent() {
       p_password: passwordVal,
     });
     setLoading(false);
-    if (rpcError) {
-      setError(`接続エラー: ${rpcError.message}`);
-      return;
-    }
-    if (!data || data.length === 0) {
+    if (rpcError || !data || data.length === 0) {
       setError("ブース番号またはパスワードが違います");
       return;
     }
