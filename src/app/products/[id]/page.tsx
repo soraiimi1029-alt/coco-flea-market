@@ -44,7 +44,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
   if (loading) {
     return (
-      <div className="max-w-[390px] mx-auto bg-bg min-h-screen flex items-center justify-center">
+      <div className="w-full sm:max-w-[390px] sm:mx-auto bg-bg min-h-screen flex items-center justify-center">
         <p className="text-sm text-ink-soft">読み込み中…</p>
       </div>
     );
@@ -52,7 +52,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
 
   if (!product || !vendor) {
     return (
-      <div className="max-w-[390px] mx-auto bg-bg min-h-screen flex items-center justify-center">
+      <div className="w-full sm:max-w-[390px] sm:mx-auto bg-bg min-h-screen flex items-center justify-center">
         <p className="text-sm text-ink-soft">商品が見つかりませんでした</p>
       </div>
     );
@@ -61,7 +61,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   const fallbackEmoji = CATEGORIES.find(c => c.id === product.category)?.emoji || "🛍️";
 
   return (
-    <div className="max-w-[390px] mx-auto bg-bg min-h-screen flex flex-col">
+    <div className="w-full sm:max-w-[390px] sm:mx-auto bg-bg min-h-screen flex flex-col">
       <div className="sticky top-0 z-10 bg-surface border-b border-border px-4 py-3.5 flex items-center justify-between">
         <Link href={`/vendors/${vendor.id}`}><ArrowLeft size={22} className="text-ink" /></Link>
         <button onClick={toggleLike} className={`flex items-center gap-1 ${liked ? "text-red-500" : "text-ink-soft"}`}>

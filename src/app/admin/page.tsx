@@ -36,7 +36,7 @@ export default function AdminPage() {
   ];
 
   return (
-    <div className="max-w-[390px] mx-auto bg-bg min-h-screen">
+    <div className="w-full sm:max-w-[390px] sm:mx-auto bg-bg min-h-screen">
       <div className="bg-brand px-4 pt-12 pb-5">
         <div className="flex justify-between items-center mb-4">
           <div />

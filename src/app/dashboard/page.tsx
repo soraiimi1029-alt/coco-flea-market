@@ -212,7 +212,7 @@ export default function DashboardPage() {
 
   if (loadError) {
     return (
-      <div className="max-w-[390px] mx-auto bg-bg min-h-screen flex flex-col items-center justify-center gap-4 px-6 text-center">
+      <div className="w-full sm:max-w-[390px] sm:mx-auto bg-bg min-h-screen flex flex-col items-center justify-center gap-4 px-6 text-center">
         <p className="text-sm text-ink-soft">通信に失敗しました。もう一度お試しください。</p>
         <button onClick={() => session && loadAll(session)}
           className="bg-brand text-white text-sm font-bold px-5 py-2.5 rounded-full">
@@ -224,14 +224,14 @@ export default function DashboardPage() {
 
   if (loadingPage || !vendor) {
     return (
-      <div className="max-w-[390px] mx-auto bg-bg min-h-screen flex items-center justify-center">
+      <div className="w-full sm:max-w-[390px] sm:mx-auto bg-bg min-h-screen flex items-center justify-center">
         <p className="text-sm text-ink-soft">読み込み中…</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-[390px] mx-auto bg-bg min-h-screen">
+    <div className="w-full sm:max-w-[390px] sm:mx-auto bg-bg min-h-screen">
       {/* ヒーロー */}
       <div className="bg-brand px-4 pt-12 pb-5">
         <Link href="/" className="inline-block mb-3"><ArrowLeft size={22} className="text-white" /></Link>

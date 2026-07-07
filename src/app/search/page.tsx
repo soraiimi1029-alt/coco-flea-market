@@ -56,7 +56,7 @@ export default function SearchPage() {
   const getVendor = (vendorId: string) => vendorMap[vendorId];
 
   return (
-    <div className="max-w-[390px] mx-auto bg-bg min-h-screen flex flex-col">
+    <div className="w-full sm:max-w-[390px] sm:mx-auto bg-bg min-h-screen flex flex-col">
       {/* ヘッダー */}
       <div className="sticky top-0 bg-surface border-b border-border px-4 py-3.5 flex items-center gap-3 z-10">
         <Link href="/"><ArrowLeft size={22} className="text-ink" /></Link>

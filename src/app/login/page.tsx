@@ -61,7 +61,7 @@ function LoginContent() {
   };
 
   return (
-    <div className="max-w-[390px] mx-auto min-h-screen bg-bg flex flex-col">
+    <div className="w-full sm:max-w-[390px] sm:mx-auto min-h-screen bg-bg flex flex-col">
       {/* ヒーロー */}
       <div className="bg-brand pt-12 pb-8 text-center">
         <img src="/logo-full.svg" alt="ココフリマ" className="w-32 mx-auto" />

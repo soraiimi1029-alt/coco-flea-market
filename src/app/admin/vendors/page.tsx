@@ -95,7 +95,7 @@ export default function AdminVendorsPage() {
   };
 
   return (
-    <div className="max-w-[390px] mx-auto bg-bg min-h-screen">
+    <div className="w-full sm:max-w-[390px] sm:mx-auto bg-bg min-h-screen">
       <div className="sticky top-0 bg-surface border-b border-border px-4 py-3.5 flex items-center justify-between z-10">
         <div className="flex items-center gap-3">
           <Link href="/admin"><ArrowLeft size={22} className="text-ink" /></Link>

@@ -47,7 +47,7 @@ export default function VendorPage({ params }: { params: Promise<{ id: string }>
 
   if (loading) {
     return (
-      <div className="max-w-[390px] mx-auto bg-bg min-h-screen flex items-center justify-center">
+      <div className="w-full sm:max-w-[390px] sm:mx-auto bg-bg min-h-screen flex items-center justify-center">
         <p className="text-sm text-ink-soft">読み込み中…</p>
       </div>
     );
@@ -55,14 +55,14 @@ export default function VendorPage({ params }: { params: Promise<{ id: string }>
 
   if (!vendor) {
     return (
-      <div className="max-w-[390px] mx-auto bg-bg min-h-screen flex items-center justify-center">
+      <div className="w-full sm:max-w-[390px] sm:mx-auto bg-bg min-h-screen flex items-center justify-center">
         <p className="text-sm text-ink-soft">出店者が見つかりませんでした</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-[390px] mx-auto bg-bg min-h-screen flex flex-col">
+    <div className="w-full sm:max-w-[390px] sm:mx-auto bg-bg min-h-screen flex flex-col">
       {/* 戻るボタン */}
       <div className="sticky top-0 z-10 bg-brand px-4 py-3">
         <Link href="/vendors"><ArrowLeft size={22} className="text-white" /></Link>

@@ -20,7 +20,7 @@ export default function VendorsPage() {
   }, []);
 
   return (
-    <div className="max-w-[390px] mx-auto bg-bg min-h-screen flex flex-col">
+    <div className="w-full sm:max-w-[390px] sm:mx-auto bg-bg min-h-screen flex flex-col">
       <div className="sticky top-0 bg-surface border-b border-border px-4 py-3.5 flex items-center gap-3 z-10">
         <Link href="/"><ArrowLeft size={22} className="text-ink" /></Link>
         <h1 className="text-sm font-bold">出店者一覧</h1>

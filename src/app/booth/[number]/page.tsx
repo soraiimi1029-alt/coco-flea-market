@@ -27,14 +27,14 @@ export default function BoothResolvePage({ params }: { params: Promise<{ number:
 
   if (status === "loading") {
     return (
-      <div className="max-w-[390px] mx-auto bg-bg min-h-screen flex items-center justify-center">
+      <div className="w-full sm:max-w-[390px] sm:mx-auto bg-bg min-h-screen flex items-center justify-center">
         <p className="text-sm text-ink-soft">読み込み中…</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-[390px] mx-auto bg-bg min-h-screen flex flex-col items-center justify-center gap-4 px-6 text-center">
+    <div className="w-full sm:max-w-[390px] sm:mx-auto bg-bg min-h-screen flex flex-col items-center justify-center gap-4 px-6 text-center">
       <p className="text-4xl">🛍️</p>
       <p className="text-sm text-ink-soft">ブース {number} はまだ出店者登録がありません</p>
       <Link href="/map" className="flex items-center gap-1.5 bg-brand text-white text-sm font-bold px-5 py-2.5 rounded-full">

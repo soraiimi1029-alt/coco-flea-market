@@ -50,7 +50,7 @@ export default function Home() {
   };
 
   return (
-    <div className="max-w-[390px] mx-auto bg-bg min-h-screen">
+    <div className="w-full sm:max-w-[390px] sm:mx-auto bg-bg min-h-screen">
       {/* ヘッダー */}
       <header className="bg-brand sticky top-0 z-10 border-b border-border">
         <div className="flex items-center justify-between px-4 pt-3.5 pb-2.5">
