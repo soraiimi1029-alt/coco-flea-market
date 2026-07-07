@@ -91,12 +91,12 @@ function LoginContent() {
           <div className="flex flex-col gap-3.5">
             <div>
               <label className="block text-[11px] font-bold text-ink-soft tracking-wider mb-1.5">ブース番号（1〜135）</label>
-              <input type="text" inputMode="numeric" value={booth} onChange={e => setBooth(e.target.value)} placeholder="例：42"
+              <input type="text" inputMode="numeric" value={booth} onChange={e => setBooth(toHalf(e.target.value))} placeholder="例：42"
                 className="w-full bg-surface border-2 border-border rounded-xl px-4 py-3 text-sm text-ink outline-none focus:border-brand font-medium" />
             </div>
             <div>
               <label className="block text-[11px] font-bold text-ink-soft tracking-wider mb-1.5">パスワード</label>
-              <input type="password" inputMode="numeric" value={password} onChange={e => setPassword(e.target.value)} placeholder="パスワードを入力"
+              <input type="password" inputMode="numeric" value={password} onChange={e => setPassword(toHalf(e.target.value))} placeholder="パスワードを入力"
                 autoComplete="off"
                 className="w-full bg-surface border-2 border-border rounded-xl px-4 py-3 text-sm text-ink outline-none focus:border-brand" />
             </div>
