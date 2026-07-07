@@ -68,6 +68,9 @@ export default function Home() {
         </Link>
       </header>
 
+      {/* 広告バナー */}
+      <BannerSlider />
+
       {/* カテゴリー */}
       <div className="flex gap-2 px-4 py-3 overflow-x-auto scrollbar-hide">
         {CATEGORIES.map(c => (
@@ -78,9 +81,6 @@ export default function Home() {
           </button>
         ))}
       </div>
-
-      {/* 広告バナー */}
-      <BannerSlider />
 
       {loading ? (
         <p className="text-center text-xs text-ink-soft py-16">読み込み中…</p>
