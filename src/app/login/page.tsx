@@ -93,9 +93,9 @@ function LoginContent() {
             </div>
             <div>
               <label className="block text-[11px] font-bold text-ink-soft tracking-wider mb-1.5">パスワード</label>
-              <input type="text" inputMode="numeric" value={password} onChange={e => setPassword(e.target.value)} placeholder="パスワードを入力"
+              <input type="password" inputMode="numeric" value={password} onChange={e => setPassword(e.target.value)} placeholder="パスワードを入力"
                 autoComplete="off"
-                className="w-full bg-surface border-2 border-border rounded-xl px-4 py-3 text-sm text-ink outline-none focus:border-brand tracking-[0.5em] font-bold" />
+                className="w-full bg-surface border-2 border-border rounded-xl px-4 py-3 text-sm text-ink outline-none focus:border-brand" />
             </div>
             <button onClick={handleVendorLogin} disabled={loading}
               className="w-full bg-brand text-white font-bold py-3.5 rounded-xl text-sm mt-1 disabled:opacity-60">
