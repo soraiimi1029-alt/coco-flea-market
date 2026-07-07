@@ -29,10 +29,10 @@ export default function AdminPage() {
 
   const menus = [
     { icon: Users, label: "出店者管理", sub: "アカウント発行・パスワード変更", href: "/admin/vendors" },
+    { icon: BarChart2, label: "広告バナー管理", sub: "ホーム画面の広告を追加・削除", href: "/admin/banners" },
     { icon: Map, label: "マップ・ブース管理", sub: "配置・ブース番号設定", href: null },
     { icon: Calendar, label: "イベント管理", sub: "作成・編集・公開設定", href: null },
     { icon: Bell, label: "お知らせ配信", sub: "来場者へのアナウンス", href: null },
-    { icon: BarChart2, label: "データ分析", sub: "閲覧数・いいね数", href: null },
   ];
 
   return (

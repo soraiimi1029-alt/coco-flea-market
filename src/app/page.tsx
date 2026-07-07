@@ -5,7 +5,7 @@ import { Search, UserCircle, Heart, MapPin } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import { vibrate } from "@/lib/haptics";
 import { CATEGORIES } from "@/lib/mock-data";
-import { SPONSORS } from "@/lib/sponsors";
+import BannerSlider from "@/components/BannerSlider";
 import { supabase } from "@/lib/supabase";
 import { getDeviceId } from "@/lib/auth";
 import type { VendorRow, ProductRow } from "@/lib/types";
@@ -79,21 +79,8 @@ export default function Home() {
         ))}
       </div>
 
-      {/* 協賛バナー */}
-      {SPONSORS.length > 0 && (
-        <div className="px-4 py-2">
-          <p className="text-[9px] text-ink-soft mb-1.5 tracking-wider">SPONSORED</p>
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-            {SPONSORS.map((s, i) => (
-              <a key={i} href={s.linkUrl} target="_blank" rel="noopener noreferrer"
-                className="flex-shrink-0 h-14 w-40 rounded-xl overflow-hidden border border-border bg-surface">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={s.imageUrl} alt={s.name} className="w-full h-full object-cover" />
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* 広告バナー */}
+      <BannerSlider />
 
       {loading ? (
         <p className="text-center text-xs text-ink-soft py-16">読み込み中…</p>
