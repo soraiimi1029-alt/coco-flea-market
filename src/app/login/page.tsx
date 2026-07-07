@@ -20,9 +20,12 @@ function LoginContent() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  // 全角→半角変換(日本語キーボード対策)
+  const toHalf = (s: string) => s.replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).trim().replace(/\s/g, "");
+
   const handleVendorLogin = async () => {
-    const boothVal = booth.trim();
-    const passwordVal = password.trim().replace(/\s/g, "");
+    const boothVal = toHalf(booth);
+    const passwordVal = toHalf(password);
     if (!boothVal) { setError("ブース番号を入力してください"); return; }
     if (!passwordVal) { setError("パスワードを入力してください"); return; }
     setError("");
