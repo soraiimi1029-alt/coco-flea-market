@@ -19,18 +19,26 @@ export default function Home() {
 
   useEffect(() => {
     (async () => {
-      const deviceId = getDeviceId();
-      const [{ data: vendorRows }, { data: productRows }, { data: likeRows }] = await Promise.all([
-        supabase.from("vendors_public").select("*"),
-        supabase.from("products").select("*").order("created_at", { ascending: false }),
-        supabase.from("likes").select("product_id").eq("device_id", deviceId),
-      ]);
-      const map: Record<string, VendorRow> = {};
-      (vendorRows || []).forEach(v => { map[v.id] = v; });
-      setVendorMap(map);
-      setProducts(productRows || []);
-      setLiked(new Set((likeRows || []).map(l => l.product_id)));
-      setLoading(false);
+      try {
+        const deviceId = getDeviceId();
+        const [{ data: vendorRows, error: vendorErr }, { data: productRows, error: productErr }, { data: likeRows, error: likeErr }] = await Promise.all([
+          supabase.from("vendors_public").select("*"),
+          supabase.from("products").select("*").order("created_at", { ascending: false }),
+          supabase.from("likes").select("product_id").eq("device_id", deviceId),
+        ]);
+        if (vendorErr) console.error("vendors_public fetch error:", vendorErr);
+        if (productErr) console.error("products fetch error:", productErr);
+        if (likeErr) console.error("likes fetch error:", likeErr);
+        const map: Record<string, VendorRow> = {};
+        (vendorRows || []).forEach(v => { map[v.id] = v; });
+        setVendorMap(map);
+        setProducts(productRows || []);
+        setLiked(new Set((likeRows || []).map(l => l.product_id)));
+      } catch (e) {
+        console.error("Home data fetch failed:", e);
+      } finally {
+        setLoading(false);
+      }
     })();
   }, []);
 

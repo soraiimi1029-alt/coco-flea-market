@@ -18,3 +18,17 @@ html, body { background: var(--color-bg); color: var(--color-ink); touch-action:
 
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ノッチ/丸角の safe area にヘッダー背景を伸ばし、白い隙間が見えるのを防ぐ */
+[class~="sticky"][class~="top-0"] {
+  position: sticky;
+}
+[class~="sticky"][class~="top-0"]::before {
+  content: "";
+  position: absolute;
+  top: calc(-1 * env(safe-area-inset-top));
+  left: 0;
+  right: 0;
+  height: env(safe-area-inset-top);
+  background-color: inherit;
+}
