@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ["192.168.86.27"],
+  allowedDevOrigins: ["192.168.86.*"],
   headers: async () => [
     {
       source: "/((?!_next/).*)",
