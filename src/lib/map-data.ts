@@ -16,17 +16,17 @@ function linspace(start: number, end: number, count: number): number[] {
   return Array.from({ length: count }, (_, i) => start + step * i);
 }
 
-// 会場全体マップ(overview.png)の①〜⑦エリアの位置
-// ①はギャラリーブース、②はストリートブース、③〜⑦はスカイブースへ
+// 会場全体マップ(overview.png)の①〜⑧エリアの位置
+// ①はギャラリーブース、②はストリートブース、③〜⑧はスカイブースへ
 export const OVERVIEW_HOTSPOTS: ZoneHotspot[] = [
-  { zone: 1, x: 30.5, y: 58.0 },
-  { zone: 2, x: 53.3, y: 42.5 },
-  { zone: 2, x: 44.6, y: 58.8 },
-  { zone: 3, x: 43.5, y: 52.9 },
-  { zone: 4, x: 55.8, y: 60.7 },
-  { zone: 5, x: 54.8, y: 56.5 },
-  { zone: 6, x: 47.0, y: 39.5 },
-  { zone: 7, x: 48.8, y: 35.3 },
+  { zone: 1, x: 26.9, y: 59.8 },
+  { zone: 2, x: 49.2, y: 47.9 },
+  { zone: 3, x: 43.2, y: 59.8 },
+  { zone: 4, x: 41.4, y: 55.4 },
+  { zone: 5, x: 56.2, y: 63.8 },
+  { zone: 6, x: 55.3, y: 58.6 },
+  { zone: 7, x: 45.8, y: 37.3 },
+  { zone: 8, x: 48.1, y: 32.4 },
 ];
 
 export function zoneTarget(zone: number): string {
