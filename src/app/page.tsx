@@ -169,14 +169,14 @@ export default function Home() {
         <p className="text-center text-xs text-ink-soft py-16">読み込み中…</p>
       ) : (
         <>
-        <div className="columns-2 gap-2 px-3 pb-4" style={{ columnGap: "8px" }}>
+        <div className="grid grid-cols-2 gap-2 px-3 pb-4">
           {products.map(p => {
             const vendor = getVendor(p.vendor_id);
             if (!vendor) return null;
             const isLiked = liked.has(p.id);
             return (
               <Link key={p.id} href={`/products/${p.id}`}
-                className="break-inside-avoid mb-2 block bg-surface rounded-xl overflow-hidden active:scale-95 transition-transform">
+                className="block bg-surface rounded-xl overflow-hidden active:scale-95 transition-transform">
                 <div className="relative flex items-center justify-center bg-bg" style={{ height: "190px" }}>
                   {p.photo_url ? (
                     <Image src={p.photo_url} alt={p.name} fill sizes="50vw" className="object-cover" />
