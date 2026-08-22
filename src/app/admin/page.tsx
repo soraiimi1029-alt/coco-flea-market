@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Calendar, Users, Map, Bell, BarChart2, ChevronRight, LogOut } from "lucide-react";
+import { Calendar, Users, Map, Bell, BarChart2, PieChart, ChevronRight, LogOut } from "lucide-react";
 import { EVENT } from "@/lib/mock-data";
 import { supabase } from "@/lib/supabase";
 import { clearSession } from "@/lib/auth";
@@ -30,6 +30,7 @@ export default function AdminPage() {
   const menus = [
     { icon: Users, label: "出店者管理", sub: "アカウント発行・パスワード変更", href: "/admin/vendors" },
     { icon: BarChart2, label: "広告バナー管理", sub: "ホーム画面の広告を追加・削除", href: "/admin/banners" },
+    { icon: PieChart, label: "来場者統計", sub: "任意アンケートの男女比集計", href: "/admin/stats" },
     { icon: Map, label: "マップ・ブース管理", sub: "配置・ブース番号設定", href: null },
     { icon: Calendar, label: "イベント管理", sub: "作成・編集・公開設定", href: null },
     { icon: Bell, label: "お知らせ配信", sub: "来場者へのアナウンス", href: null },

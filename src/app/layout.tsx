@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import SplashScreen from "@/components/SplashScreen";
+import OnboardingModal from "@/components/OnboardingModal";
+import GenderPrompt from "@/components/GenderPrompt";
 
 export const metadata: Metadata = {
   title: "ココフリマ",
@@ -23,6 +25,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body style={{ fontFamily: "'Noto Sans JP', sans-serif" }}>
         <SplashScreen />
+        <OnboardingModal />
+        <GenderPrompt />
         {children}
       </body>
     </html>

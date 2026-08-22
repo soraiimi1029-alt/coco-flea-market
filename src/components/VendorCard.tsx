@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 interface Vendor {
   id: string; storeName: string; boothNumber: string;
@@ -14,11 +15,10 @@ export default function VendorCard({ vendor }: { vendor: Vendor }) {
   return (
     <Link href={`/vendors/${vendor.id}`}
       className="flex-shrink-0 w-[120px] bg-surface rounded-xl p-3 text-center block active:scale-95 transition-transform">
-      <div className="w-12 h-12 rounded-full mx-auto mb-2 flex items-center justify-center text-2xl border-2 border-brand-light overflow-hidden"
+      <div className="relative w-12 h-12 rounded-full mx-auto mb-2 flex items-center justify-center text-2xl border-2 border-brand-light overflow-hidden"
         style={{ background: vendor.avatarBg }}>
         {vendor.avatarUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={vendor.avatarUrl} alt={vendor.storeName} className="w-full h-full object-cover" />
+          <Image src={vendor.avatarUrl} alt={vendor.storeName} fill sizes="48px" className="object-cover" />
         ) : vendor.emoji}
       </div>
       <p className="text-xs font-bold text-ink truncate">{vendor.storeName}</p>

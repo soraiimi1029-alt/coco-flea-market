@@ -1,10 +1,12 @@
 "use client";
 import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, Search, MapPin, ChevronRight, Heart } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import { vibrate } from "@/lib/haptics";
 import { CATEGORIES } from "@/lib/mock-data";
+import NoPhotoPlaceholder from "@/components/NoPhotoPlaceholder";
 import { supabase } from "@/lib/supabase";
 import { getDeviceId } from "@/lib/auth";
 import type { VendorRow, ProductRow } from "@/lib/types";
@@ -15,6 +17,7 @@ export default function SearchPage() {
   const [products, setProducts] = useState<ProductRow[]>([]);
   const [vendorMap, setVendorMap] = useState<Record<string, VendorRow>>({});
   const [liked, setLiked] = useState<Set<string>>(new Set());
+  const [pulsingId, setPulsingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -39,9 +42,14 @@ export default function SearchPage() {
     e.stopPropagation();
     vibrate(30);
     const deviceId = getDeviceId();
+    const isNowLiked = !liked.has(productId);
     const next = new Set(liked);
-    next.has(productId) ? next.delete(productId) : next.add(productId);
+    isNowLiked ? next.add(productId) : next.delete(productId);
     setLiked(next);
+    if (isNowLiked) {
+      setPulsingId(productId);
+      setTimeout(() => setPulsingId(cur => (cur === productId ? null : cur)), 450);
+    }
     await supabase.rpc("toggle_like", { p_product_id: productId, p_device_id: deviceId });
   };
 
@@ -101,17 +109,15 @@ export default function SearchPage() {
         ) : results.map(product => {
           const vendor = getVendor(product.vendor_id);
           if (!vendor) return null;
-          const fallbackEmoji = CATEGORIES.find(c => c.id === product.category)?.emoji || "🛍️";
           const isLiked = liked.has(product.id);
           return (
             <Link key={product.id} href={`/products/${product.id}`}
               className="bg-surface rounded-xl flex gap-3 p-3 items-center active:scale-95 transition-transform">
-              <div className="relative w-[72px] h-[72px] rounded-lg flex items-center justify-center text-3xl flex-shrink-0 overflow-hidden bg-bg">
+              <div className="relative w-[72px] h-[72px] rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden bg-bg">
                 {product.photo_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={product.photo_url} alt={product.name} className="w-full h-full object-cover" />
+                  <Image src={product.photo_url} alt={product.name} fill sizes="72px" className="object-cover" />
                 ) : (
-                  fallbackEmoji
+                  <NoPhotoPlaceholder size={26} />
                 )}
               </div>
               <div className="flex-1 min-w-0">
@@ -128,8 +134,12 @@ export default function SearchPage() {
                 </div>
               </div>
               <button onClick={(e) => toggleLike(product.id, e)}
-                className={`flex-shrink-0 w-8 h-8 flex items-center justify-center transition-colors ${isLiked ? "text-red-500" : "text-gray-300"}`}>
-                <Heart size={18} fill={isLiked ? "currentColor" : "none"} />
+                className={`relative flex-shrink-0 w-8 h-8 flex items-center justify-center transition-colors ${isLiked ? "text-red-500" : "text-gray-300"}`}>
+                {pulsingId === product.id && (
+                  <span className="absolute inset-0 rounded-full bg-red-400 animate-heart-burst" />
+                )}
+                <Heart size={18} fill={isLiked ? "currentColor" : "none"}
+                  className={pulsingId === product.id ? "animate-heart-pop" : ""} />
               </button>
             </Link>
           );

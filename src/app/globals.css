@@ -19,6 +19,21 @@ html, body { background: var(--color-bg); color: var(--color-ink); touch-action:
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
+@keyframes heart-pop {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.5); }
+  50% { transform: scale(0.85); }
+  75% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+.animate-heart-pop { animation: heart-pop 0.4s ease-out; }
+
+@keyframes heart-burst {
+  0% { transform: scale(0.3); opacity: 0.6; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+.animate-heart-burst { animation: heart-burst 0.5s ease-out; }
+
 /* ノッチ/丸角の safe area にヘッダー背景を伸ばし、白い隙間が見えるのを防ぐ */
 [class~="sticky"][class~="top-0"] {
   position: sticky;

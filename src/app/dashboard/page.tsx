@@ -6,7 +6,7 @@ import { ArrowLeft, Plus, Link2, Pencil, Trash2, Heart, ImagePlus, X } from "luc
 import { supabase } from "@/lib/supabase";
 import { getVendorSession, clearSession } from "@/lib/auth";
 import { uploadProductPhoto } from "@/lib/upload";
-import { CATEGORIES } from "@/lib/mock-data";
+import { CATEGORIES, CONDITIONS } from "@/lib/mock-data";
 import type { VendorRow, ProductRow } from "@/lib/types";
 
 const PRODUCT_CATEGORIES = CATEGORIES.filter(c => c.id !== "all");
@@ -16,11 +16,12 @@ interface ProductForm {
   price: string;
   description: string;
   category: string;
+  condition: string;
   photoFile: File | null;
   existingPhotoUrl: string | null;
 }
 
-const EMPTY_FORM: ProductForm = { name: "", price: "", description: "", category: "clothing", photoFile: null, existingPhotoUrl: null };
+const EMPTY_FORM: ProductForm = { name: "", price: "", description: "", category: "clothing", condition: "no_flaws", photoFile: null, existingPhotoUrl: null };
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -100,6 +101,7 @@ export default function DashboardPage() {
       price: p.price != null ? String(p.price) : "",
       description: p.description,
       category: p.category,
+      condition: p.condition,
       photoFile: null,
       existingPhotoUrl: p.photo_url,
     });
@@ -131,6 +133,7 @@ export default function DashboardPage() {
           p_photo_url: photoUrl,
           p_category: form.category,
           p_in_stock: existing ? existing.in_stock : true,
+          p_condition: form.condition,
         });
         if (error) throw error;
       } else {
@@ -142,6 +145,7 @@ export default function DashboardPage() {
           p_description: form.description,
           p_photo_url: photoUrl,
           p_category: form.category,
+          p_condition: form.condition,
         });
         if (error) throw error;
       }
@@ -168,6 +172,7 @@ export default function DashboardPage() {
       p_photo_url: p.photo_url,
       p_category: p.category,
       p_in_stock: nextInStock,
+      p_condition: p.condition,
     });
   };
 
@@ -312,6 +317,14 @@ export default function DashboardPage() {
                 {PRODUCT_CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.emoji} {c.name}</option>)}
               </select>
 
+              <div>
+                <label className="text-[11px] font-bold text-ink-soft block mb-1.5 tracking-wider">商品の状態</label>
+                <select value={form.condition} onChange={e => setForm(f => ({ ...f, condition: e.target.value }))}
+                  className="w-full bg-bg border border-border rounded-lg px-3 py-2.5 text-sm text-ink outline-none focus:border-brand">
+                  {CONDITIONS.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+
               {formError && <p className="text-xs text-red-600">{formError}</p>}
 
               <button onClick={submitForm} disabled={submitting}
@@ -335,6 +348,7 @@ export default function DashboardPage() {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-ink truncate">{p.name}</p>
                   {p.price != null && <p className="text-xs text-brand-dark font-bold mt-0.5">¥{p.price.toLocaleString()}</p>}
+                  <p className="text-[11px] text-ink-soft mt-0.5 truncate">{CONDITIONS.find(c => c.id === p.condition)?.name}</p>
                   <p className="flex items-center gap-1 text-[11px] text-ink-soft mt-0.5">
                     <Heart size={11} className={p.like_count > 0 ? "text-red-500" : ""} fill={p.like_count > 0 ? "currentColor" : "none"} />
                     {p.like_count}

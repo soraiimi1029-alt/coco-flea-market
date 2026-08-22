@@ -1,10 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Heart, ArrowLeft } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import { vibrate } from "@/lib/haptics";
-import { CATEGORIES } from "@/lib/mock-data";
+import NoPhotoPlaceholder from "@/components/NoPhotoPlaceholder";
 import { supabase } from "@/lib/supabase";
 import { getDeviceId } from "@/lib/auth";
 import type { VendorRow, ProductRow } from "@/lib/types";
@@ -63,16 +64,14 @@ export default function FavoritesPage() {
           {products.map(p => {
             const vendor = getVendor(p.vendor_id);
             if (!vendor) return null;
-            const fallbackEmoji = CATEGORIES.find(c => c.id === p.category)?.emoji || "🛍️";
             return (
               <Link key={p.id} href={`/products/${p.id}`}
                 className="break-inside-avoid mb-2 block bg-surface rounded-xl overflow-hidden active:scale-95 transition-transform">
-                <div className="relative flex items-center justify-center text-5xl bg-bg" style={{ height: "190px" }}>
+                <div className="relative flex items-center justify-center bg-bg" style={{ height: "190px" }}>
                   {p.photo_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={p.photo_url} alt={p.name} className="w-full h-full object-cover" />
+                    <Image src={p.photo_url} alt={p.name} fill sizes="50vw" className="object-cover" />
                   ) : (
-                    fallbackEmoji
+                    <NoPhotoPlaceholder />
                   )}
                   {!p.in_stock && (
                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center">

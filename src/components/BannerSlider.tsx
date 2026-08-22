@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 
 type Banner = { id: string; image_url: string; link_url: string | null };
@@ -32,12 +33,10 @@ export default function BannerSlider() {
       <div className="relative w-full rounded-xl overflow-hidden" style={{ aspectRatio: "3/1" }}>
         {banner.link_url ? (
           <a href={banner.link_url} target="_blank" rel="noopener noreferrer" className="block w-full h-full">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={banner.image_url} alt="広告" className="w-full h-full object-cover" />
+            <Image src={banner.image_url} alt="広告" fill sizes="390px" className="object-cover" />
           </a>
         ) : (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={banner.image_url} alt="広告" className="w-full h-full object-cover" />
+          <Image src={banner.image_url} alt="広告" fill sizes="390px" className="object-cover" />
         )}
         {banners.length > 1 && (
           <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1">

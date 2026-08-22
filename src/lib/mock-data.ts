@@ -7,6 +7,15 @@ export const CATEGORIES = [
   { id: "other", name: "その他", emoji: "✨" },
 ];
 
+export const CONDITIONS = [
+  { id: "new", name: "新品、未使用" },
+  { id: "like_new", name: "未使用に近い" },
+  { id: "no_flaws", name: "目立った傷や汚れなし" },
+  { id: "some_flaws", name: "やや傷や汚れあり" },
+  { id: "flaws", name: "傷や汚れあり" },
+  { id: "poor", name: "全体的に状態が悪い" },
+];
+
 export const VENDORS = [
   {
     id: "v1", storeName: "momo's closet", boothNumber: "B-12",

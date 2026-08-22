@@ -1,21 +1,49 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { Search, UserCircle, Heart, MapPin } from "lucide-react";
+import Image from "next/image";
+import { Search, UserCircle, Heart, MapPin, ArrowUpDown, HelpCircle } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import { vibrate } from "@/lib/haptics";
 import { CATEGORIES } from "@/lib/mock-data";
 import BannerSlider from "@/components/BannerSlider";
+import NoPhotoPlaceholder from "@/components/NoPhotoPlaceholder";
 import { supabase } from "@/lib/supabase";
 import { getDeviceId } from "@/lib/auth";
 import type { VendorRow, ProductRow } from "@/lib/types";
 
+type SortOption = "new" | "popular" | "price_asc" | "price_desc";
+
+const SORT_OPTIONS: { id: SortOption; label: string }[] = [
+  { id: "new", label: "新着順" },
+  { id: "popular", label: "人気順" },
+  { id: "price_asc", label: "価格が安い順" },
+  { id: "price_desc", label: "価格が高い順" },
+];
+
+const PAGE_SIZE = 20;
+
+function fetchProductsPage(category: string, sort: SortOption, offset: number) {
+  let query = supabase.from("products").select("*").not("photo_url", "is", null);
+  if (category !== "all") query = query.eq("category", category);
+  if (sort === "popular") query = query.order("like_count", { ascending: false });
+  else if (sort === "price_asc") query = query.order("price", { ascending: true, nullsFirst: false });
+  else if (sort === "price_desc") query = query.order("price", { ascending: false, nullsFirst: false });
+  else query = query.order("created_at", { ascending: false });
+  return query.range(offset, offset + PAGE_SIZE - 1);
+}
+
 export default function Home() {
   const [activeCategory, setActiveCategory] = useState("all");
+  const [sortBy, setSortBy] = useState<SortOption>("new");
   const [liked, setLiked] = useState<Set<string>>(new Set());
+  const [pulsingId, setPulsingId] = useState<string | null>(null);
   const [products, setProducts] = useState<ProductRow[]>([]);
   const [vendorMap, setVendorMap] = useState<Record<string, VendorRow>>({});
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const isFirstRun = useRef(true);
 
   useEffect(() => {
     (async () => {
@@ -23,7 +51,7 @@ export default function Home() {
         const deviceId = getDeviceId();
         const [{ data: vendorRows, error: vendorErr }, { data: productRows, error: productErr }, { data: likeRows, error: likeErr }] = await Promise.all([
           supabase.from("vendors_public").select("*"),
-          supabase.from("products").select("*").order("created_at", { ascending: false }),
+          fetchProductsPage("all", "new", 0),
           supabase.from("likes").select("product_id").eq("device_id", deviceId),
         ]);
         if (vendorErr) console.error("vendors_public fetch error:", vendorErr);
@@ -33,6 +61,7 @@ export default function Home() {
         (vendorRows || []).forEach(v => { map[v.id] = v; });
         setVendorMap(map);
         setProducts(productRows || []);
+        setHasMore((productRows || []).length === PAGE_SIZE);
         setLiked(new Set((likeRows || []).map(l => l.product_id)));
       } catch (e) {
         console.error("Home data fetch failed:", e);
@@ -42,8 +71,27 @@ export default function Home() {
     })();
   }, []);
 
-  const filtered = (activeCategory === "all" ? products : products.filter(p => p.category === activeCategory))
-    .filter(p => p.photo_url);
+  useEffect(() => {
+    if (isFirstRun.current) { isFirstRun.current = false; return; }
+    (async () => {
+      setLoading(true);
+      const { data, error } = await fetchProductsPage(activeCategory, sortBy, 0);
+      if (error) console.error("products fetch error:", error);
+      setProducts(data || []);
+      setHasMore((data || []).length === PAGE_SIZE);
+      setLoading(false);
+    })();
+  }, [activeCategory, sortBy]);
+
+  const loadMore = async () => {
+    setLoadingMore(true);
+    const { data, error } = await fetchProductsPage(activeCategory, sortBy, products.length);
+    if (error) console.error("products fetch error:", error);
+    setProducts(prev => [...prev, ...(data || [])]);
+    setHasMore((data || []).length === PAGE_SIZE);
+    setLoadingMore(false);
+  };
+
   const getVendor = (id: string) => vendorMap[id];
 
   const toggleLike = async (id: string, e: React.MouseEvent) => {
@@ -51,9 +99,14 @@ export default function Home() {
     e.stopPropagation();
     vibrate(30);
     const deviceId = getDeviceId();
+    const isNowLiked = !liked.has(id);
     const next = new Set(liked);
-    next.has(id) ? next.delete(id) : next.add(id);
+    isNowLiked ? next.add(id) : next.delete(id);
     setLiked(next);
+    if (isNowLiked) {
+      setPulsingId(id);
+      setTimeout(() => setPulsingId(cur => (cur === id ? null : cur)), 450);
+    }
     await supabase.rpc("toggle_like", { p_product_id: id, p_device_id: deviceId });
   };
 
@@ -63,10 +116,16 @@ export default function Home() {
       <header className="bg-brand sticky top-0 z-10 border-b border-border">
         <div className="flex items-center justify-between px-4 pt-3.5 pb-2.5">
           <img src="/logo-pictogram.svg" alt="ココフリマ" className="h-6 w-auto" />
-          <Link href="/login" className="flex items-center gap-1 text-navy">
-            <UserCircle size={20} />
-            <span className="text-xs font-bold">ログイン</span>
-          </Link>
+          <div className="flex items-center gap-3.5">
+            <Link href="/faq" className="flex items-center gap-1 text-navy">
+              <HelpCircle size={20} />
+              <span className="text-xs font-bold">よくある質問</span>
+            </Link>
+            <Link href="/login" className="flex items-center gap-1 text-navy">
+              <UserCircle size={20} />
+              <span className="text-xs font-bold">ログイン</span>
+            </Link>
+          </div>
         </div>
         <Link href="/search" className="block px-4 pb-3">
           <div className="flex items-center gap-2 bg-bg rounded-lg px-3 py-2.5 border border-border">
@@ -90,24 +149,39 @@ export default function Home() {
         ))}
       </div>
 
+      {/* 並び替え */}
+      <div className="flex justify-end px-4 pb-2">
+        <label className="flex items-center gap-1.5 text-xs text-ink-mid bg-surface border border-border rounded-full pl-3 pr-2 py-1.5">
+          <ArrowUpDown size={12} className="text-ink-soft" />
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as SortOption)}
+            className="bg-transparent text-xs font-medium focus:outline-none"
+          >
+            {SORT_OPTIONS.map(o => (
+              <option key={o.id} value={o.id}>{o.label}</option>
+            ))}
+          </select>
+        </label>
+      </div>
+
       {loading ? (
         <p className="text-center text-xs text-ink-soft py-16">読み込み中…</p>
       ) : (
-        <div className="columns-2 gap-2 px-3 pb-24" style={{ columnGap: "8px" }}>
-          {filtered.map(p => {
+        <>
+        <div className="columns-2 gap-2 px-3 pb-4" style={{ columnGap: "8px" }}>
+          {products.map(p => {
             const vendor = getVendor(p.vendor_id);
             if (!vendor) return null;
             const isLiked = liked.has(p.id);
-            const fallbackEmoji = CATEGORIES.find(c => c.id === p.category)?.emoji || "🛍️";
             return (
               <Link key={p.id} href={`/products/${p.id}`}
                 className="break-inside-avoid mb-2 block bg-surface rounded-xl overflow-hidden active:scale-95 transition-transform">
-                <div className="relative flex items-center justify-center text-5xl bg-bg" style={{ height: "190px" }}>
+                <div className="relative flex items-center justify-center bg-bg" style={{ height: "190px" }}>
                   {p.photo_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={p.photo_url} alt={p.name} className="w-full h-full object-cover" />
+                    <Image src={p.photo_url} alt={p.name} fill sizes="50vw" className="object-cover" />
                   ) : (
-                    fallbackEmoji
+                    <NoPhotoPlaceholder />
                   )}
                   {!p.in_stock && (
                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
@@ -117,7 +191,11 @@ export default function Home() {
                   <button onClick={(e) => toggleLike(p.id, e)}
                     className={`absolute top-2 right-2 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center transition-colors
                       ${isLiked ? "text-red-500" : "text-gray-300"}`}>
-                    <Heart size={15} fill={isLiked ? "currentColor" : "none"} />
+                    {pulsingId === p.id && (
+                      <span className="absolute inset-0 rounded-full bg-red-400 animate-heart-burst" />
+                    )}
+                    <Heart size={15} fill={isLiked ? "currentColor" : "none"}
+                      className={pulsingId === p.id ? "animate-heart-pop" : ""} />
                   </button>
                 </div>
                 <div className="p-2.5">
@@ -137,6 +215,16 @@ export default function Home() {
             );
           })}
         </div>
+        {hasMore && (
+          <div className="px-3 pb-24 flex justify-center">
+            <button onClick={loadMore} disabled={loadingMore}
+              className="text-xs font-bold text-ink-mid bg-surface border border-border rounded-full px-5 py-2.5 disabled:opacity-60">
+              {loadingMore ? "読み込み中…" : "もっと見る"}
+            </button>
+          </div>
+        )}
+        {!hasMore && <div className="pb-24" />}
+        </>
       )}
       <BottomNav />
     </div>

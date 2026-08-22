@@ -1,10 +1,11 @@
 "use client";
 import { use, useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, MapPin, Heart } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import { vibrate } from "@/lib/haptics";
-import { CATEGORIES } from "@/lib/mock-data";
+import NoPhotoPlaceholder from "@/components/NoPhotoPlaceholder";
 import { supabase } from "@/lib/supabase";
 import { getDeviceId } from "@/lib/auth";
 import type { VendorRow, ProductRow } from "@/lib/types";
@@ -14,6 +15,7 @@ export default function VendorPage({ params }: { params: Promise<{ id: string }>
   const [vendor, setVendor] = useState<VendorRow | null>(null);
   const [products, setProducts] = useState<ProductRow[]>([]);
   const [liked, setLiked] = useState<Set<string>>(new Set());
+  const [pulsingId, setPulsingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -39,9 +41,14 @@ export default function VendorPage({ params }: { params: Promise<{ id: string }>
     e.stopPropagation();
     vibrate(30);
     const deviceId = getDeviceId();
+    const isNowLiked = !liked.has(productId);
     const next = new Set(liked);
-    next.has(productId) ? next.delete(productId) : next.add(productId);
+    isNowLiked ? next.add(productId) : next.delete(productId);
     setLiked(next);
+    if (isNowLiked) {
+      setPulsingId(productId);
+      setTimeout(() => setPulsingId(cur => (cur === productId ? null : cur)), 450);
+    }
     await supabase.rpc("toggle_like", { p_product_id: productId, p_device_id: deviceId });
   };
 
@@ -70,11 +77,10 @@ export default function VendorPage({ params }: { params: Promise<{ id: string }>
 
       {/* ヒーロー */}
       <div className="bg-brand pt-2 pb-6 px-5 text-center">
-        <div className="w-[72px] h-[72px] rounded-full mx-auto mb-3 flex items-center justify-center text-4xl border-4 border-white/25 overflow-hidden"
+        <div className="relative w-[72px] h-[72px] rounded-full mx-auto mb-3 flex items-center justify-center text-4xl border-4 border-white/25 overflow-hidden"
           style={{ background: vendor.avatar_bg }}>
           {vendor.avatar_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={vendor.avatar_url} alt={vendor.store_name} className="w-full h-full object-cover" />
+            <Image src={vendor.avatar_url} alt={vendor.store_name} fill sizes="72px" className="object-cover" />
           ) : vendor.emoji}
         </div>
         <h1 className="text-lg font-bold text-white mb-1">{vendor.store_name}</h1>
@@ -101,16 +107,14 @@ export default function VendorPage({ params }: { params: Promise<{ id: string }>
         </h2>
         <div className="grid grid-cols-3 gap-2">
           {products.map(p => {
-            const fallbackEmoji = CATEGORIES.find(c => c.id === p.category)?.emoji || "🛍️";
             const isLiked = liked.has(p.id);
             return (
               <Link key={p.id} href={`/products/${p.id}`}
-                className="relative aspect-square rounded-lg flex items-center justify-center text-3xl overflow-hidden bg-bg block active:scale-95 transition-transform">
+                className="relative aspect-square rounded-lg flex items-center justify-center overflow-hidden bg-bg block active:scale-95 transition-transform">
                 {p.photo_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={p.photo_url} alt={p.name} className="w-full h-full object-cover" />
+                  <Image src={p.photo_url} alt={p.name} fill sizes="33vw" className="object-cover" />
                 ) : (
-                  fallbackEmoji
+                  <NoPhotoPlaceholder size={22} />
                 )}
                 {p.price != null && (
                   <div className="absolute bottom-0 left-0 right-0 text-center text-[10px] font-bold bg-white/90 py-0.5 rounded-b-lg">
@@ -125,7 +129,11 @@ export default function VendorPage({ params }: { params: Promise<{ id: string }>
                 <button onClick={(e) => toggleLike(p.id, e)}
                   className={`absolute top-1 right-1 w-6 h-6 bg-white/90 rounded-full flex items-center justify-center transition-colors
                     ${isLiked ? "text-red-500" : "text-gray-300"}`}>
-                  <Heart size={12} fill={isLiked ? "currentColor" : "none"} />
+                  {pulsingId === p.id && (
+                    <span className="absolute inset-0 rounded-full bg-red-400 animate-heart-burst" />
+                  )}
+                  <Heart size={12} fill={isLiked ? "currentColor" : "none"}
+                    className={pulsingId === p.id ? "animate-heart-pop" : ""} />
                 </button>
               </Link>
             );

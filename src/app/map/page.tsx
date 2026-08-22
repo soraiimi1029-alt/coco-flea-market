@@ -15,7 +15,7 @@ export default function MapPage() {
         <h1 className="text-sm font-bold">会場マップ</h1>
       </div>
 
-      <div className="p-4 pb-24">
+      <div className="flex-1 flex flex-col justify-center p-4 pb-24">
         <p className="text-xs text-ink-soft mb-3 text-center">エリアをタップすると、ブース一覧が表示されます</p>
         <div className="relative w-full rounded-xl overflow-hidden border border-border">
           {/* eslint-disable-next-line @next/next/no-img-element */}

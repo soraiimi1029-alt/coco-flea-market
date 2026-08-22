@@ -18,6 +18,7 @@ export interface ProductRow {
   description: string;
   photo_url: string | null;
   category: string;
+  condition: string;
   in_stock: boolean;
   like_count: number;
 }
