@@ -215,6 +215,19 @@ export default function DashboardPage() {
     }
   };
 
+  const resetAvatar = async () => {
+    if (avatarFile) { setAvatarFile(null); return; }
+    if (!session || !vendor?.avatar_url) return;
+    if (!confirm("アイコンを初期状態(絵文字)に戻しますか？")) return;
+    const { error } = await supabase.rpc("clear_vendor_avatar", {
+      p_booth_number: session.booth,
+      p_password: session.password,
+    });
+    if (!error) {
+      setVendor(v => v ? { ...v, avatar_url: null } : v);
+    }
+  };
+
   if (loadError) {
     return (
       <div className="w-full sm:max-w-[390px] sm:mx-auto bg-bg min-h-screen flex flex-col items-center justify-center gap-4 px-6 text-center">
@@ -389,7 +402,14 @@ export default function DashboardPage() {
                 <input type="file" accept="image/*" className="hidden"
                   onChange={e => setAvatarFile(e.target.files?.[0] || null)} />
               </label>
-              <p className="text-[11px] text-ink-soft">タップして写真を変更</p>
+              <div className="flex flex-col gap-1 items-start">
+                <p className="text-[11px] text-ink-soft">タップして写真を変更</p>
+                {(avatarFile || vendor.avatar_url) && (
+                  <button onClick={resetAvatar} className="text-[11px] text-red-500 font-medium underline">
+                    初期アイコンに戻す
+                  </button>
+                )}
+              </div>
             </div>
           </div>
           <div className="bg-surface rounded-xl p-4">
