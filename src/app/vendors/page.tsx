@@ -14,8 +14,9 @@ export default function VendorsPage() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.from("vendors_public").select("*").order("booth_number");
-      setVendors(data || []);
+      const { data } = await supabase.from("vendors_public").select("*");
+      const sorted = (data || []).sort((a, b) => Number(a.booth_number) - Number(b.booth_number));
+      setVendors(sorted);
       setLoading(false);
     })();
   }, []);

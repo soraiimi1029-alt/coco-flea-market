@@ -3,6 +3,7 @@ import { use, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, MapPin, Heart } from "lucide-react";
+import VendorAvatarPlaceholder from "@/components/VendorAvatarPlaceholder";
 import BottomNav from "@/components/BottomNav";
 import { vibrate } from "@/lib/haptics";
 import NoPhotoPlaceholder from "@/components/NoPhotoPlaceholder";
@@ -77,11 +78,12 @@ export default function VendorPage({ params }: { params: Promise<{ id: string }>
 
       {/* ヒーロー */}
       <div className="bg-brand pt-2 pb-6 px-5 text-center">
-        <div className="relative w-[72px] h-[72px] rounded-full mx-auto mb-3 flex items-center justify-center text-4xl border-4 border-white/25 overflow-hidden"
-          style={{ background: vendor.avatar_bg }}>
+        <div className="relative w-[72px] h-[72px] rounded-full mx-auto mb-3 border-4 border-white/25 overflow-hidden">
           {vendor.avatar_url ? (
             <Image src={vendor.avatar_url} alt={vendor.store_name} fill sizes="72px" className="object-cover" />
-          ) : vendor.emoji}
+          ) : (
+            <VendorAvatarPlaceholder size={32} />
+          )}
         </div>
         <h1 className="text-lg font-bold text-white mb-1">{vendor.store_name}</h1>
         <p className="text-xs text-white/70 font-bold tracking-wide mb-3">ブース {vendor.booth_number}</p>

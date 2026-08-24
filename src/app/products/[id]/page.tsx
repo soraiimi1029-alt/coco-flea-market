@@ -3,6 +3,7 @@ import { use, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, Heart, MapPin } from "lucide-react";
+import VendorAvatarPlaceholder from "@/components/VendorAvatarPlaceholder";
 import BottomNav from "@/components/BottomNav";
 import { vibrate } from "@/lib/haptics";
 import { CONDITIONS } from "@/lib/mock-data";
@@ -93,11 +94,12 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
       <div className="p-4 pb-24">
         {/* 出店者ミニカード */}
         <Link href={`/vendors/${vendor.id}`} className="flex items-center gap-2.5 mb-4">
-          <div className="relative w-9 h-9 rounded-full flex items-center justify-center text-lg overflow-hidden flex-shrink-0"
-            style={{ background: vendor.avatar_bg }}>
+          <div className="relative w-9 h-9 rounded-full overflow-hidden flex-shrink-0">
             {vendor.avatar_url ? (
               <Image src={vendor.avatar_url} alt={vendor.store_name} fill sizes="36px" className="object-cover" />
-            ) : vendor.emoji}
+            ) : (
+              <VendorAvatarPlaceholder size={16} />
+            )}
           </div>
           <div className="min-w-0">
             <p className="text-xs font-bold text-ink truncate">{vendor.store_name}</p>

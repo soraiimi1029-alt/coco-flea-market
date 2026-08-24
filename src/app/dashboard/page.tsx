@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { getVendorSession, clearSession } from "@/lib/auth";
 import { uploadProductPhoto } from "@/lib/upload";
 import { CATEGORIES, CONDITIONS } from "@/lib/mock-data";
+import VendorAvatarPlaceholder from "@/components/VendorAvatarPlaceholder";
 import type { VendorRow, ProductRow } from "@/lib/types";
 
 const PRODUCT_CATEGORIES = CATEGORIES.filter(c => c.id !== "all");
@@ -254,12 +255,13 @@ export default function DashboardPage() {
       <div className="bg-brand px-4 pt-12 pb-5">
         <Link href="/" className="inline-block mb-3"><ArrowLeft size={22} className="text-white" /></Link>
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full flex items-center justify-center text-2xl border-2 border-white/25 overflow-hidden"
-            style={{ background: vendor.avatar_bg }}>
+          <div className="relative w-12 h-12 rounded-full border-2 border-white/25 overflow-hidden">
             {vendor.avatar_url ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={vendor.avatar_url} alt={vendor.store_name} className="w-full h-full object-cover" />
-            ) : vendor.emoji}
+            ) : (
+              <VendorAvatarPlaceholder size={22} />
+            )}
           </div>
           <div>
             <h1 className="text-base font-bold text-white">{vendor.store_name}</h1>
@@ -390,15 +392,16 @@ export default function DashboardPage() {
           <div className="bg-surface rounded-xl p-4">
             <label className="text-[11px] font-bold text-ink-soft block mb-1.5 tracking-wider">アイコン</label>
             <div className="flex items-center gap-3">
-              <label className="w-16 h-16 rounded-full flex items-center justify-center text-3xl overflow-hidden cursor-pointer flex-shrink-0 border-2 border-dashed border-border"
-                style={{ background: vendor.avatar_bg }}>
+              <label className="relative w-16 h-16 rounded-full overflow-hidden cursor-pointer flex-shrink-0 border-2 border-dashed border-border">
                 {avatarFile ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={URL.createObjectURL(avatarFile)} alt="アイコン" className="w-full h-full object-cover" />
                 ) : vendor.avatar_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={vendor.avatar_url} alt="アイコン" className="w-full h-full object-cover" />
-                ) : vendor.emoji}
+                ) : (
+                  <VendorAvatarPlaceholder size={28} />
+                )}
                 <input type="file" accept="image/*" className="hidden"
                   onChange={e => setAvatarFile(e.target.files?.[0] || null)} />
               </label>

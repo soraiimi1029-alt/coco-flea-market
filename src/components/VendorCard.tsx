@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import VendorAvatarPlaceholder from "./VendorAvatarPlaceholder";
 
 interface Vendor {
   id: string; storeName: string; boothNumber: string;
@@ -15,11 +16,12 @@ export default function VendorCard({ vendor }: { vendor: Vendor }) {
   return (
     <Link href={`/vendors/${vendor.id}`}
       className="flex-shrink-0 w-[120px] bg-surface rounded-xl p-3 text-center block active:scale-95 transition-transform">
-      <div className="relative w-12 h-12 rounded-full mx-auto mb-2 flex items-center justify-center text-2xl border-2 border-brand-light overflow-hidden"
-        style={{ background: vendor.avatarBg }}>
+      <div className="relative w-12 h-12 rounded-full mx-auto mb-2 overflow-hidden border-2 border-brand-light">
         {vendor.avatarUrl ? (
           <Image src={vendor.avatarUrl} alt={vendor.storeName} fill sizes="48px" className="object-cover" />
-        ) : vendor.emoji}
+        ) : (
+          <VendorAvatarPlaceholder size={22} />
+        )}
       </div>
       <p className="text-xs font-bold text-ink truncate">{vendor.storeName}</p>
       <p className="text-[10px] text-ink-soft mt-0.5">ブース {vendor.boothNumber}</p>
