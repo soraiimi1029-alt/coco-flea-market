@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { getDeviceId } from "@/lib/auth";
+import { getDeviceId, setVisitorGender } from "@/lib/auth";
 
 const ONBOARDING_KEY = "flea_onboarding_seen";
 const GENDER_KEY = "flea_gender_answered";
@@ -29,6 +29,7 @@ export default function GenderPrompt() {
 
   const answer = async (gender: string) => {
     localStorage.setItem(GENDER_KEY, "1");
+    setVisitorGender(gender);
     setVisible(false);
     await supabase.rpc("submit_visitor_gender", { p_device_id: getDeviceId(), p_gender: gender });
   };

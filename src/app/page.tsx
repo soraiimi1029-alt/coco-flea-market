@@ -9,7 +9,7 @@ import { CATEGORIES } from "@/lib/mock-data";
 import BannerSlider from "@/components/BannerSlider";
 import NoPhotoPlaceholder from "@/components/NoPhotoPlaceholder";
 import { supabase } from "@/lib/supabase";
-import { getDeviceId } from "@/lib/auth";
+import { getDeviceId, getVisitorGender } from "@/lib/auth";
 import type { VendorRow, ProductRow } from "@/lib/types";
 
 type SortOption = "new" | "popular" | "price_asc" | "price_desc";
@@ -23,14 +23,49 @@ const SORT_OPTIONS: { id: SortOption; label: string }[] = [
 
 const PAGE_SIZE = 20;
 
-function fetchProductsPage(category: string, sort: SortOption, offset: number) {
-  let query = supabase.from("products").select("*").not("photo_url", "is", null);
+// 来場者アンケートの回答からターゲット属性へのマッピング
+function targetGenderFor(visitorGender: string | null): string | null {
+  if (visitorGender === "male") return "mens";
+  if (visitorGender === "female") return "ladies";
+  return null;
+}
+
+function buildFeedQuery(category: string, sort: SortOption) {
+  let query = supabase.from("products_feed").select("*").not("photo_url", "is", null);
   if (category !== "all") query = query.eq("category", category);
   if (sort === "popular") query = query.order("like_count", { ascending: false });
   else if (sort === "price_asc") query = query.order("price", { ascending: true, nullsFirst: false });
   else if (sort === "price_desc") query = query.order("price", { ascending: false, nullsFirst: false });
   else query = query.order("created_at", { ascending: false });
-  return query.range(offset, offset + PAGE_SIZE - 1);
+  return query;
+}
+
+// 一致する性別ターゲットの商品を優先し、残りを他の商品で埋める
+async function fetchFeedPage(
+  category: string, sort: SortOption, target: string | null, matchOffset: number, restOffset: number
+): Promise<{ items: ProductRow[]; matchConsumed: number; restConsumed: number; error: unknown }> {
+  if (!target) {
+    const { data, error } = await buildFeedQuery(category, sort).range(restOffset, restOffset + PAGE_SIZE - 1);
+    return { items: data || [], matchConsumed: 0, restConsumed: (data || []).length, error };
+  }
+  const { data: matchData, error: matchError } = await buildFeedQuery(category, sort)
+    .eq("target_gender", target).range(matchOffset, matchOffset + PAGE_SIZE - 1);
+  const matchResults = matchData || [];
+  const remaining = PAGE_SIZE - matchResults.length;
+  let restResults: ProductRow[] = [];
+  let restError = null;
+  if (remaining > 0) {
+    const { data: restData, error } = await buildFeedQuery(category, sort)
+      .neq("target_gender", target).range(restOffset, restOffset + remaining - 1);
+    restResults = restData || [];
+    restError = error;
+  }
+  return {
+    items: [...matchResults, ...restResults],
+    matchConsumed: matchResults.length,
+    restConsumed: restResults.length,
+    error: matchError || restError,
+  };
 }
 
 export default function Home() {
@@ -44,24 +79,28 @@ export default function Home() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const isFirstRun = useRef(true);
+  const offsets = useRef({ match: 0, rest: 0 });
+  const targetGender = useRef<string | null>(null);
 
   useEffect(() => {
+    targetGender.current = targetGenderFor(getVisitorGender());
     (async () => {
       try {
         const deviceId = getDeviceId();
-        const [{ data: vendorRows, error: vendorErr }, { data: productRows, error: productErr }, { data: likeRows, error: likeErr }] = await Promise.all([
+        const [{ data: vendorRows, error: vendorErr }, feedResult, { data: likeRows, error: likeErr }] = await Promise.all([
           supabase.from("vendors_public").select("*"),
-          fetchProductsPage("all", "new", 0),
+          fetchFeedPage("all", "new", targetGender.current, 0, 0),
           supabase.from("likes").select("product_id").eq("device_id", deviceId),
         ]);
         if (vendorErr) console.error("vendors_public fetch error:", vendorErr);
-        if (productErr) console.error("products fetch error:", productErr);
+        if (feedResult.error) console.error("products fetch error:", feedResult.error);
         if (likeErr) console.error("likes fetch error:", likeErr);
         const map: Record<string, VendorRow> = {};
         (vendorRows || []).forEach(v => { map[v.id] = v; });
         setVendorMap(map);
-        setProducts(productRows || []);
-        setHasMore((productRows || []).length === PAGE_SIZE);
+        setProducts(feedResult.items);
+        offsets.current = { match: feedResult.matchConsumed, rest: feedResult.restConsumed };
+        setHasMore(feedResult.items.length === PAGE_SIZE);
         setLiked(new Set((likeRows || []).map(l => l.product_id)));
       } catch (e) {
         console.error("Home data fetch failed:", e);
@@ -75,20 +114,22 @@ export default function Home() {
     if (isFirstRun.current) { isFirstRun.current = false; return; }
     (async () => {
       setLoading(true);
-      const { data, error } = await fetchProductsPage(activeCategory, sortBy, 0);
-      if (error) console.error("products fetch error:", error);
-      setProducts(data || []);
-      setHasMore((data || []).length === PAGE_SIZE);
+      const result = await fetchFeedPage(activeCategory, sortBy, targetGender.current, 0, 0);
+      if (result.error) console.error("products fetch error:", result.error);
+      setProducts(result.items);
+      offsets.current = { match: result.matchConsumed, rest: result.restConsumed };
+      setHasMore(result.items.length === PAGE_SIZE);
       setLoading(false);
     })();
   }, [activeCategory, sortBy]);
 
   const loadMore = async () => {
     setLoadingMore(true);
-    const { data, error } = await fetchProductsPage(activeCategory, sortBy, products.length);
-    if (error) console.error("products fetch error:", error);
-    setProducts(prev => [...prev, ...(data || [])]);
-    setHasMore((data || []).length === PAGE_SIZE);
+    const result = await fetchFeedPage(activeCategory, sortBy, targetGender.current, offsets.current.match, offsets.current.rest);
+    if (result.error) console.error("products fetch error:", result.error);
+    setProducts(prev => [...prev, ...result.items]);
+    offsets.current = { match: offsets.current.match + result.matchConsumed, rest: offsets.current.rest + result.restConsumed };
+    setHasMore(result.items.length === PAGE_SIZE);
     setLoadingMore(false);
   };
 

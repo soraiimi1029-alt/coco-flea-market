@@ -24,6 +24,12 @@ interface ProductForm {
 
 const EMPTY_FORM: ProductForm = { name: "", price: "", description: "", category: "clothing", condition: "no_flaws", photoFile: null, existingPhotoUrl: null };
 
+const TARGET_GENDER_OPTIONS: { id: string; label: string }[] = [
+  { id: "unisex", label: "どちらも" },
+  { id: "mens", label: "メンズ" },
+  { id: "ladies", label: "レディース" },
+];
+
 export default function DashboardPage() {
   const router = useRouter();
   const [session, setSession] = useState<{ booth: string; password: string } | null>(null);
@@ -42,6 +48,7 @@ export default function DashboardPage() {
   const [storeName, setStoreName] = useState("");
   const [profileText, setProfileText] = useState("");
   const [instagramUrl, setInstagramUrl] = useState("");
+  const [targetGender, setTargetGender] = useState("unisex");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [savingProfile, setSavingProfile] = useState(false);
   const [savedMsg, setSavedMsg] = useState(false);
@@ -69,6 +76,7 @@ export default function DashboardPage() {
     setStoreName(v.store_name);
     setProfileText(v.profile);
     setInstagramUrl(v.instagram || "");
+    setTargetGender(v.target_gender || "unisex");
 
     const { data: productRows } = await supabase
       .from("products")
@@ -203,6 +211,7 @@ export default function DashboardPage() {
       p_profile: profileText,
       p_instagram: instagramUrl || null,
       p_avatar_url: avatarUrl,
+      p_target_gender: targetGender,
     });
     setSavingProfile(false);
     if (!error) {
@@ -211,7 +220,7 @@ export default function DashboardPage() {
       setTimeout(() => setSavedMsg(false), 2000);
       setVendor(v => v ? {
         ...v, store_name: storeName, profile: profileText, instagram: instagramUrl || null,
-        avatar_url: avatarUrl || v.avatar_url,
+        avatar_url: avatarUrl || v.avatar_url, target_gender: targetGender,
       } : v);
     }
   };
@@ -424,6 +433,13 @@ export default function DashboardPage() {
             <label className="text-[11px] font-bold text-ink-soft block mb-1.5 tracking-wider">プロフィール</label>
             <textarea value={profileText} onChange={e => setProfileText(e.target.value)} rows={4}
               className="w-full bg-bg border border-border rounded-lg px-3 py-2.5 text-sm text-ink outline-none focus:border-brand resize-none" />
+          </div>
+          <div className="bg-surface rounded-xl p-4">
+            <label className="text-[11px] font-bold text-ink-soft block mb-1.5 tracking-wider">ターゲット</label>
+            <select value={targetGender} onChange={e => setTargetGender(e.target.value)}
+              className="w-full bg-bg border border-border rounded-lg px-3 py-2.5 text-sm text-ink outline-none focus:border-brand">
+              {TARGET_GENDER_OPTIONS.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}
+            </select>
           </div>
           <div className="bg-surface rounded-xl p-4">
             <label className="text-[11px] font-bold text-ink-soft block mb-1.5 tracking-wider">Instagram URL</label>

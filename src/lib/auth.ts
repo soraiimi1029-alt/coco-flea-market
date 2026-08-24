@@ -54,3 +54,14 @@ export function getDeviceId(): string {
   }
   return id;
 }
+
+// 来場者アンケートで選んだ性別("male" | "female" | "other" | "no_answer")。
+// ホーム画面の商品優先表示に使う。未回答なら null。
+export function getVisitorGender(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("flea_gender");
+}
+
+export function setVisitorGender(gender: string) {
+  localStorage.setItem("flea_gender", gender);
+}

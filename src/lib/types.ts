@@ -8,6 +8,7 @@ export interface VendorRow {
   avatar_url: string | null;
   category: string;
   instagram: string | null;
+  target_gender: string;
 }
 
 export interface ProductRow {
