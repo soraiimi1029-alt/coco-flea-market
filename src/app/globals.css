@@ -34,6 +34,13 @@ html, body { background: var(--color-bg); color: var(--color-ink); touch-action:
 }
 .animate-heart-burst { animation: heart-burst 0.5s ease-out; }
 
+/* マップ上で特定のブースをうっすら光らせて示す(番号が読めるよう塗りつぶさない) */
+@keyframes booth-glow {
+  0%, 100% { box-shadow: 0 0 10px 3px rgba(245, 199, 32, 0.35); opacity: 0.75; }
+  50% { box-shadow: 0 0 22px 8px rgba(245, 199, 32, 0.6); opacity: 1; }
+}
+.animate-booth-glow { animation: booth-glow 1.8s ease-in-out infinite; }
+
 /* ノッチ/丸角の safe area にヘッダー背景を伸ばし、白い隙間が見えるのを防ぐ */
 [class~="sticky"][class~="top-0"] {
   position: sticky;

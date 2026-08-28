@@ -3,7 +3,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
-import { STREET_HOTSPOTS, findHotspot } from "@/lib/map-data";
+import { STREET_HOTSPOTS, findHotspot, estimateHighlightWidth } from "@/lib/map-data";
 import { Suspense } from "react";
 
 function StreetMapContent() {
@@ -11,6 +11,7 @@ function StreetMapContent() {
   const searchParams = useSearchParams();
   const targetBooth = searchParams.get("booth") ? Number(searchParams.get("booth")) : null;
   const targetHotspot = targetBooth ? findHotspot(targetBooth) : null;
+  const highlightWidth = targetHotspot ? estimateHighlightWidth(STREET_HOTSPOTS, targetHotspot, 2052 / 1596) : 0;
 
   return (
     <div className="w-full sm:max-w-[390px] sm:mx-auto bg-bg min-h-screen flex flex-col">
@@ -30,12 +31,10 @@ function StreetMapContent() {
             <img src="/map/street.jpg" alt="ストリートブース 41〜90番"
               className="h-full w-auto block pointer-events-none" draggable={false} />
             {targetHotspot && (
-              <>
-                <span className="absolute -translate-x-1/2 -translate-y-1/2 w-[8%] aspect-square rounded-full bg-brand/50 animate-ping"
-                  style={{ left: `${targetHotspot.x}%`, top: `${targetHotspot.y}%` }} />
-                <span className="absolute -translate-x-1/2 -translate-y-1/2 w-[6%] aspect-square rounded-full bg-brand border-2 border-white"
-                  style={{ left: `${targetHotspot.x}%`, top: `${targetHotspot.y}%` }} />
-              </>
+              <span
+                className="absolute -translate-x-1/2 -translate-y-1/2 aspect-square rounded-md border-2 border-brand bg-brand/15 animate-booth-glow pointer-events-none"
+                style={{ left: `${targetHotspot.x}%`, top: `${targetHotspot.y}%`, width: `${highlightWidth}%` }}
+              />
             )}
             {STREET_HOTSPOTS.map(h => (
               <button

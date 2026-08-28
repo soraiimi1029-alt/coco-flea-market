@@ -137,3 +137,23 @@ export function findHotspot(boothNumber: number): Hotspot | null {
   const all = [...GALLERY_HOTSPOTS, ...STREET_HOTSPOTS, ...SKY_3_4_HOTSPOTS, ...SKY_5_6_HOTSPOTS, ...SKY_7_8_HOTSPOTS];
   return all.find(h => h.number === boothNumber) ?? null;
 }
+
+// ハイライト用マーカーのサイズ(画像横幅に対する%)を、
+// 同じ行/列に並ぶ隣のブースとの間隔から推定する(実際のブース1コマ分に近い大きさになるように)。
+// imageAspect は画像の 横/縦 比(street.jpgのみ横長のため個別指定が必要)。
+export function estimateHighlightWidth(hotspots: Hotspot[], target: Hotspot, imageAspect: number): number {
+  const TOLERANCE = 3;
+  let minDx = Infinity;
+  let minDy = Infinity;
+  for (const h of hotspots) {
+    if (h.number === target.number) continue;
+    const dx = Math.abs(h.x - target.x);
+    const dy = Math.abs(h.y - target.y);
+    if (dy < TOLERANCE && dx > 0.1) minDx = Math.min(minDx, dx);
+    if (dx < TOLERANCE && dy > 0.1) minDy = Math.min(minDy, dy);
+  }
+  const fromRow = Number.isFinite(minDx) ? minDx * 0.8 : null;
+  const fromCol = Number.isFinite(minDy) ? (minDy / imageAspect) * 0.8 : null;
+  const size = fromRow != null && fromCol != null ? Math.min(fromRow, fromCol) : fromRow ?? fromCol ?? 9;
+  return Math.min(14, Math.max(5, size));
+}

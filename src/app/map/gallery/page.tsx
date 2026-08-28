@@ -4,7 +4,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import ZoomableImage from "@/components/ZoomableImage";
-import { GALLERY_HOTSPOTS, findHotspot } from "@/lib/map-data";
+import { GALLERY_HOTSPOTS, findHotspot, estimateHighlightWidth } from "@/lib/map-data";
 import { Suspense } from "react";
 
 function GalleryMapContent() {
@@ -12,6 +12,7 @@ function GalleryMapContent() {
   const searchParams = useSearchParams();
   const targetBooth = searchParams.get("booth") ? Number(searchParams.get("booth")) : null;
   const targetHotspot = targetBooth ? findHotspot(targetBooth) : null;
+  const highlightWidth = targetHotspot ? estimateHighlightWidth(GALLERY_HOTSPOTS, targetHotspot, 1128 / 1596) : 0;
 
   return (
     <div className="w-full sm:max-w-[390px] sm:mx-auto bg-bg min-h-screen flex flex-col">
@@ -26,12 +27,10 @@ function GalleryMapContent() {
       <div className="flex-1 flex items-center pb-24">
         <ZoomableImage src="/map/gallery.jpg" alt="ギャラリーブース 1〜40番">
           {targetHotspot && (
-            <>
-              <span className="absolute -translate-x-1/2 -translate-y-1/2 w-[10%] aspect-square rounded-full bg-brand/50 animate-ping"
-                style={{ left: `${targetHotspot.x}%`, top: `${targetHotspot.y}%` }} />
-              <span className="absolute -translate-x-1/2 -translate-y-1/2 w-[8%] aspect-square rounded-full bg-brand border-2 border-white"
-                style={{ left: `${targetHotspot.x}%`, top: `${targetHotspot.y}%` }} />
-            </>
+            <span
+              className="absolute -translate-x-1/2 -translate-y-1/2 aspect-square rounded-md border-2 border-brand bg-brand/15 animate-booth-glow pointer-events-none"
+              style={{ left: `${targetHotspot.x}%`, top: `${targetHotspot.y}%`, width: `${highlightWidth}%` }}
+            />
           )}
           {GALLERY_HOTSPOTS.map(h => (
             <button
