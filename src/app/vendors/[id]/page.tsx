@@ -9,6 +9,7 @@ import { vibrate } from "@/lib/haptics";
 import NoPhotoPlaceholder from "@/components/NoPhotoPlaceholder";
 import { supabase } from "@/lib/supabase";
 import { getDeviceId } from "@/lib/auth";
+import { getBoothMapUrl } from "@/lib/map-data";
 import type { VendorRow, ProductRow } from "@/lib/types";
 
 export default function VendorPage({ params }: { params: Promise<{ id: string }> }) {
@@ -95,7 +96,7 @@ export default function VendorPage({ params }: { params: Promise<{ id: string }>
                Instagram
             </a>
           )}
-          <Link href="/map"
+          <Link href={getBoothMapUrl(vendor.booth_number)}
             className="flex items-center gap-1.5 bg-white/10 text-white text-xs font-medium px-3.5 py-1.5 rounded-full border border-white/20">
             <MapPin size={13} /> マップで見る
           </Link>
