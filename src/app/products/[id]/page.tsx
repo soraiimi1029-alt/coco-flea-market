@@ -1,5 +1,6 @@
 "use client";
 import { use, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, Heart, MapPin } from "lucide-react";
@@ -15,6 +16,7 @@ import type { VendorRow, ProductRow } from "@/lib/types";
 
 export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const router = useRouter();
   const [product, setProduct] = useState<ProductRow | null>(null);
   const [vendor, setVendor] = useState<VendorRow | null>(null);
   const [liked, setLiked] = useState(false);
@@ -70,7 +72,7 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   return (
     <div className="w-full sm:max-w-[390px] sm:mx-auto bg-bg min-h-screen flex flex-col">
       <div className="sticky top-0 z-10 bg-surface border-b border-border px-4 py-3.5 flex items-center justify-between">
-        <Link href={`/vendors/${vendor.id}`}><ArrowLeft size={22} className="text-ink" /></Link>
+        <button onClick={() => router.back()}><ArrowLeft size={22} className="text-ink" /></button>
         <button onClick={toggleLike} className={`relative flex items-center gap-1 ${liked ? "text-red-500" : "text-ink-soft"}`}>
           {pulsing && <span className="absolute -inset-1.5 rounded-full bg-red-400 animate-heart-burst" />}
           <Heart size={20} fill={liked ? "currentColor" : "none"} className={pulsing ? "animate-heart-pop" : ""} />
