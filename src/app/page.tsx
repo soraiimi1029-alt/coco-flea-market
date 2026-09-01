@@ -156,7 +156,7 @@ export default function Home() {
       {/* ヘッダー */}
       <header className="bg-brand sticky top-0 z-10 border-b border-border">
         <div className="flex items-center justify-between px-4 pt-3.5 pb-2.5">
-          <img src="/logo-cocotap-white.png" alt="COCO TAP" className="h-8 w-auto" />
+          <img src="/logo-pictogram.svg" alt="ココフリマ" className="h-6 w-auto" />
           <div className="flex items-center gap-3.5">
             <Link href="/faq" className="flex items-center gap-1 text-navy">
               <HelpCircle size={20} />

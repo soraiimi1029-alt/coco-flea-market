@@ -18,7 +18,7 @@ export default function SplashScreen() {
       className="fixed inset-0 z-50 flex items-center justify-center bg-brand transition-opacity duration-500"
       style={{ opacity: fading ? 0 : 1 }}
     >
-      <img src="/logo-full.svg" alt="ココフリマ" className="w-48" />
+      <img src="/logo-cocotap-splash.png" alt="COCO TAP" className="w-56" />
     </div>
   );
 }
