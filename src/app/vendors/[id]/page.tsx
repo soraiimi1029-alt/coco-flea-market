@@ -1,5 +1,6 @@
 "use client";
 import { use, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, MapPin, Heart } from "lucide-react";
@@ -14,6 +15,7 @@ import type { VendorRow, ProductRow } from "@/lib/types";
 
 export default function VendorPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const router = useRouter();
   const [vendor, setVendor] = useState<VendorRow | null>(null);
   const [products, setProducts] = useState<ProductRow[]>([]);
   const [liked, setLiked] = useState<Set<string>>(new Set());
@@ -74,7 +76,7 @@ export default function VendorPage({ params }: { params: Promise<{ id: string }>
     <div className="w-full sm:max-w-[390px] sm:mx-auto bg-bg min-h-screen flex flex-col">
       {/* 戻るボタン */}
       <div className="sticky top-0 z-10 bg-brand px-4 py-3">
-        <Link href="/vendors"><ArrowLeft size={22} className="text-white" /></Link>
+        <button onClick={() => router.back()}><ArrowLeft size={22} className="text-white" /></button>
       </div>
 
       {/* ヒーロー */}
