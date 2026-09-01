@@ -93,7 +93,7 @@ export default function VendorPage({ params }: { params: Promise<{ id: string }>
         <p className="text-[13px] text-white leading-[1.7]">{vendor.profile}</p>
         <div className="flex gap-2.5 mt-3.5 justify-center">
           {vendor.instagram && (
-            <a href={vendor.instagram} target="_blank" rel="noopener noreferrer"
+            <a href={vendor.instagram}
               className="flex items-center gap-1.5 bg-white/10 text-white text-xs font-medium px-3.5 py-1.5 rounded-full border border-white/20">
                Instagram
             </a>
