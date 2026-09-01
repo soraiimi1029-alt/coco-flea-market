@@ -1,6 +1,5 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 import ZoomableImage from "@/components/ZoomableImage";
@@ -17,7 +16,7 @@ function GalleryMapContent() {
   return (
     <div className="w-full sm:max-w-[390px] sm:mx-auto bg-bg min-h-screen flex flex-col">
       <div className="sticky top-0 bg-surface border-b border-border px-4 py-3.5 flex items-center gap-3 z-10">
-        <Link href="/map"><ArrowLeft size={22} className="text-ink" /></Link>
+        <button onClick={() => router.back()}><ArrowLeft size={22} className="text-ink" /></button>
         <h1 className="text-sm font-bold">① ギャラリーブース</h1>
       </div>
       <p className="text-[11px] text-ink-soft text-center py-2">
