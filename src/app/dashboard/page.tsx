@@ -49,6 +49,7 @@ export default function DashboardPage() {
   const [profileText, setProfileText] = useState("");
   const [instagramUrl, setInstagramUrl] = useState("");
   const [targetGender, setTargetGender] = useState("unisex");
+  const [vendorCategory, setVendorCategory] = useState("clothing");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [savingProfile, setSavingProfile] = useState(false);
   const [savedMsg, setSavedMsg] = useState(false);
@@ -77,6 +78,7 @@ export default function DashboardPage() {
     setProfileText(v.profile);
     setInstagramUrl(v.instagram || "");
     setTargetGender(v.target_gender || "unisex");
+    setVendorCategory(v.category || "clothing");
 
     const { data: productRows } = await supabase
       .from("products")
@@ -212,6 +214,7 @@ export default function DashboardPage() {
       p_instagram: instagramUrl || null,
       p_avatar_url: avatarUrl,
       p_target_gender: targetGender,
+      p_category: vendorCategory,
     });
     setSavingProfile(false);
     if (!error) {
@@ -220,7 +223,7 @@ export default function DashboardPage() {
       setTimeout(() => setSavedMsg(false), 2000);
       setVendor(v => v ? {
         ...v, store_name: storeName, profile: profileText, instagram: instagramUrl || null,
-        avatar_url: avatarUrl || v.avatar_url, target_gender: targetGender,
+        avatar_url: avatarUrl || v.avatar_url, target_gender: targetGender, category: vendorCategory,
       } : v);
     }
   };
@@ -428,6 +431,13 @@ export default function DashboardPage() {
             <label className="text-[11px] font-bold text-ink-soft block mb-1.5 tracking-wider">店舗名</label>
             <input value={storeName} onChange={e => setStoreName(e.target.value)}
               className="w-full bg-bg border border-border rounded-lg px-3 py-2.5 text-sm text-ink outline-none focus:border-brand" />
+          </div>
+          <div className="bg-surface rounded-xl p-4">
+            <label className="text-[11px] font-bold text-ink-soft block mb-1.5 tracking-wider">カテゴリ</label>
+            <select value={vendorCategory} onChange={e => setVendorCategory(e.target.value)}
+              className="w-full bg-bg border border-border rounded-lg px-3 py-2.5 text-sm text-ink outline-none focus:border-brand">
+              {PRODUCT_CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.emoji} {c.name}</option>)}
+            </select>
           </div>
           <div className="bg-surface rounded-xl p-4">
             <label className="text-[11px] font-bold text-ink-soft block mb-1.5 tracking-wider">プロフィール</label>
