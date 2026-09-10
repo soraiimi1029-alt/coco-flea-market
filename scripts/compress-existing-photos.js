@@ -17,9 +17,9 @@ const sharp = require("sharp");
 const fs = require("fs");
 const path = require("path");
 
-const MAX_DIMENSION = 1600;
-const JPEG_QUALITY = 82;
-const SKIP_UNDER_BYTES = 400 * 1024; // これより小さい画像はそのままにする
+const MAX_DIMENSION = 1000;
+const JPEG_QUALITY = 75;
+const SKIP_UNDER_BYTES = 150 * 1024; // これより小さい画像はそのままにする
 
 function loadSupabaseUrl() {
   const envPath = path.join(__dirname, "..", ".env.local");

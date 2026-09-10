@@ -1,8 +1,10 @@
 import { supabase } from "@/lib/supabase";
 import { generateId } from "@/lib/auth";
 
-const MAX_DIMENSION = 1600;
-const JPEG_QUALITY = 0.82;
+// どのページでも写真は横幅390px程度でしか表示されずズーム機能もないため、
+// 高DPI端末を考慮しても1000pxあれば十分(以前の1600pxはオーバースペックだった)
+const MAX_DIMENSION = 1000;
+const JPEG_QUALITY = 0.75;
 
 // Vercelの画像最適化を経由しなくなった(unoptimized: true)ため、
 // スマホの高解像度写真(数MB)をそのまま配信すると表示が重くなる。
