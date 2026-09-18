@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Plus, Link2, Pencil, Trash2, Heart, ImagePlus, X } from "lucide-react";
@@ -53,6 +53,18 @@ export default function DashboardPage() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [savingProfile, setSavingProfile] = useState(false);
   const [savedMsg, setSavedMsg] = useState(false);
+
+  const photoPreviewUrl = useMemo(
+    () => form.photoFile ? URL.createObjectURL(form.photoFile) : null,
+    [form.photoFile]
+  );
+  useEffect(() => () => { if (photoPreviewUrl) URL.revokeObjectURL(photoPreviewUrl); }, [photoPreviewUrl]);
+
+  const avatarPreviewUrl = useMemo(
+    () => avatarFile ? URL.createObjectURL(avatarFile) : null,
+    [avatarFile]
+  );
+  useEffect(() => () => { if (avatarPreviewUrl) URL.revokeObjectURL(avatarPreviewUrl); }, [avatarPreviewUrl]);
 
   const loadAll = useCallback(async (s: { booth: string; password: string }) => {
     const { data: vendorRows, error: vendorError } = await supabase.rpc("vendor_login", {
@@ -313,7 +325,7 @@ export default function DashboardPage() {
                 {(form.photoFile || form.existingPhotoUrl) ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={form.photoFile ? URL.createObjectURL(form.photoFile) : form.existingPhotoUrl || ""}
+                    src={photoPreviewUrl || form.existingPhotoUrl || ""}
                     alt="商品写真"
                     className="w-full h-full object-cover"
                   />
@@ -407,7 +419,7 @@ export default function DashboardPage() {
               <label className="relative w-16 h-16 rounded-full overflow-hidden cursor-pointer flex-shrink-0 border-2 border-dashed border-border">
                 {avatarFile ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={URL.createObjectURL(avatarFile)} alt="アイコン" className="w-full h-full object-cover" />
+                  <img src={avatarPreviewUrl || ""} alt="アイコン" className="w-full h-full object-cover" />
                 ) : vendor.avatar_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={vendor.avatar_url} alt="アイコン" className="w-full h-full object-cover" />
