@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useLayoutEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Search, UserCircle, Heart, MapPin, ArrowUpDown, HelpCircle } from "lucide-react";
@@ -22,6 +22,22 @@ const SORT_OPTIONS: { id: SortOption; label: string }[] = [
 ];
 
 const PAGE_SIZE = 20;
+
+// 商品詳細から戻ったときに一覧・スクロール位置を保持するためのタブ内キャッシュ
+// (ページ全体を再読み込みしない限り有効。フルリロードすればリセットされる)
+interface HomeCache {
+  activeCategory: string;
+  sortBy: SortOption;
+  products: ProductRow[];
+  vendorMap: Record<string, VendorRow>;
+  liked: string[];
+  hasMore: boolean;
+  match: number;
+  rest: number;
+  targetGender: string | null;
+  scrollY: number;
+}
+let homeCache: HomeCache | null = null;
 
 // 来場者アンケートの回答からターゲット属性へのマッピング
 function targetGenderFor(visitorGender: string | null): string | null {
@@ -49,20 +65,49 @@ async function fetchFeedPage(
 }
 
 export default function Home() {
-  const [activeCategory, setActiveCategory] = useState("all");
-  const [sortBy, setSortBy] = useState<SortOption>("new");
-  const [liked, setLiked] = useState<Set<string>>(new Set());
+  const [restored] = useState(() => homeCache);
+  const [activeCategory, setActiveCategory] = useState(restored?.activeCategory ?? "all");
+  const [sortBy, setSortBy] = useState<SortOption>(restored?.sortBy ?? "new");
+  const [liked, setLiked] = useState<Set<string>>(new Set(restored?.liked ?? []));
   const [pulsingId, setPulsingId] = useState<string | null>(null);
-  const [products, setProducts] = useState<ProductRow[]>([]);
-  const [vendorMap, setVendorMap] = useState<Record<string, VendorRow>>({});
-  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState<ProductRow[]>(restored?.products ?? []);
+  const [vendorMap, setVendorMap] = useState<Record<string, VendorRow>>(restored?.vendorMap ?? {});
+  const [loading, setLoading] = useState(!restored);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
+  const [hasMore, setHasMore] = useState(restored?.hasMore ?? true);
   const isFirstRun = useRef(true);
-  const offsets = useRef({ match: 0, rest: 0 });
-  const targetGender = useRef<string | null>(null);
+  const offsets = useRef({ match: restored?.match ?? 0, rest: restored?.rest ?? 0 });
+  const targetGender = useRef<string | null>(restored?.targetGender ?? null);
+
+  // 戻ってきた直後、続きのスクロール位置に復元する
+  useLayoutEffect(() => {
+    if (restored?.scrollY) {
+      requestAnimationFrame(() => window.scrollTo(0, restored.scrollY));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // スクロール位置と一覧の状態を常にキャッシュしておく(離脱時に使う値を先読みしておく)
+  useEffect(() => {
+    const onScroll = () => {
+      if (homeCache) homeCache.scrollY = window.scrollY;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
+    homeCache = {
+      activeCategory, sortBy, products, vendorMap,
+      liked: Array.from(liked), hasMore,
+      match: offsets.current.match, rest: offsets.current.rest,
+      targetGender: targetGender.current,
+      scrollY: homeCache?.scrollY ?? 0,
+    };
+  }, [activeCategory, sortBy, products, vendorMap, liked, hasMore]);
+
+  useEffect(() => {
+    if (restored) return;
     targetGender.current = targetGenderFor(getVisitorGender());
     (async () => {
       try {
@@ -87,7 +132,7 @@ export default function Home() {
         setLoading(false);
       }
     })();
-  }, []);
+  }, [restored]);
 
   useEffect(() => {
     if (isFirstRun.current) { isFirstRun.current = false; return; }
