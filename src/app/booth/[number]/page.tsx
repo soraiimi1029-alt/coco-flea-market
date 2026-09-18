@@ -3,7 +3,6 @@ import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 
 export default function BoothResolvePage({ params }: { params: Promise<{ number: string }> }) {
   const { number } = use(params);
@@ -12,11 +11,8 @@ export default function BoothResolvePage({ params }: { params: Promise<{ number:
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase
-        .from("vendors_public")
-        .select("id")
-        .eq("booth_number", number)
-        .maybeSingle();
+      const res = await fetch(`/api/booth/${number}`);
+      const data: { id: string } | null = res.ok ? await res.json() : null;
       if (data) {
         router.replace(`/vendors/${data.id}`);
       } else {

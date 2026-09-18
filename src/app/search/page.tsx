@@ -23,9 +23,9 @@ export default function SearchPage() {
   useEffect(() => {
     (async () => {
       const deviceId = getDeviceId();
-      const [{ data: vendorRows }, { data: productRows }, { data: likeRows }] = await Promise.all([
-        supabase.from("vendors_public").select("*"),
-        supabase.from("products").select("*").order("created_at", { ascending: false }),
+      const [vendorRows, productRows, { data: likeRows }] = await Promise.all([
+        fetch("/api/vendors").then(r => r.json()) as Promise<VendorRow[]>,
+        fetch("/api/products").then(r => r.json()) as Promise<ProductRow[]>,
         supabase.from("likes").select("product_id").eq("device_id", deviceId),
       ]);
       const map: Record<string, VendorRow> = {};

@@ -21,10 +21,12 @@ export default function FavoritesPage() {
       const { data: likeRows } = await supabase.from("likes").select("product_id").eq("device_id", deviceId);
       const productIds = (likeRows || []).map(l => l.product_id);
       if (productIds.length === 0) { setLoading(false); return; }
-      const [{ data: productRows }, { data: vendorRows }] = await Promise.all([
-        supabase.from("products").select("*").in("id", productIds).order("created_at", { ascending: false }),
-        supabase.from("vendors_public").select("*"),
+      const [allProducts, vendorRows]: [ProductRow[], VendorRow[]] = await Promise.all([
+        fetch("/api/products").then(r => r.json()),
+        fetch("/api/vendors").then(r => r.json()),
       ]);
+      const idSet = new Set(productIds);
+      const productRows = allProducts.filter(p => idSet.has(p.id));
       const map: Record<string, VendorRow> = {};
       (vendorRows || []).forEach(v => { map[v.id] = v; });
       setVendorMap(map);

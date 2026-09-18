@@ -4,7 +4,6 @@ import { ArrowLeft, Search } from "lucide-react";
 import Link from "next/link";
 import BottomNav from "@/components/BottomNav";
 import VendorCard from "@/components/VendorCard";
-import { supabase } from "@/lib/supabase";
 import type { VendorRow } from "@/lib/types";
 
 export default function VendorsPage() {
@@ -14,7 +13,7 @@ export default function VendorsPage() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.from("vendors_public").select("*");
+      const data: VendorRow[] = await fetch("/api/vendors").then(r => r.json());
       const sorted = (data || []).sort((a, b) => Number(a.booth_number) - Number(b.booth_number));
       setVendors(sorted);
       setLoading(false);

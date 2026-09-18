@@ -26,11 +26,11 @@ export default function ProductPage({ params }: { params: Promise<{ id: string }
   useEffect(() => {
     (async () => {
       const deviceId = getDeviceId();
-      const { data: productRow } = await supabase.from("products").select("*").eq("id", id).single();
+      const productRow: ProductRow | null = await fetch(`/api/products/${id}`).then(r => r.ok ? r.json() : null);
       if (!productRow) { setLoading(false); return; }
       setProduct(productRow);
-      const [{ data: vendorRow }, { data: likeRow }] = await Promise.all([
-        supabase.from("vendors_public").select("*").eq("id", productRow.vendor_id).single(),
+      const [vendorRow, { data: likeRow }] = await Promise.all([
+        fetch(`/api/vendors/${productRow.vendor_id}`).then(r => r.ok ? r.json() : null) as Promise<VendorRow | null>,
         supabase.from("likes").select("id").eq("product_id", id).eq("device_id", deviceId).maybeSingle(),
       ]);
       setVendor(vendorRow || null);

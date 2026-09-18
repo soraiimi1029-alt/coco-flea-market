@@ -25,9 +25,9 @@ export default function VendorPage({ params }: { params: Promise<{ id: string }>
   useEffect(() => {
     (async () => {
       const deviceId = getDeviceId();
-      const [{ data: vendorRow }, { data: productRows }] = await Promise.all([
-        supabase.from("vendors_public").select("*").eq("id", id).single(),
-        supabase.from("products").select("*").eq("vendor_id", id).order("created_at", { ascending: false }),
+      const [vendorRow, productRows]: [VendorRow | null, ProductRow[]] = await Promise.all([
+        fetch(`/api/vendors/${id}`).then(r => r.ok ? r.json() : null),
+        fetch(`/api/products?vendorId=${id}`).then(r => r.json()),
       ]);
       setVendor(vendorRow || null);
       setProducts(productRows || []);

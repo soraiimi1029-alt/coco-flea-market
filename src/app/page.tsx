@@ -30,42 +30,22 @@ function targetGenderFor(visitorGender: string | null): string | null {
   return null;
 }
 
-function buildFeedQuery(category: string, sort: SortOption) {
-  let query = supabase.from("products_feed").select("*").not("photo_url", "is", null);
-  if (category !== "all") query = query.eq("category", category);
-  if (sort === "popular") query = query.order("like_count", { ascending: false });
-  else if (sort === "price_asc") query = query.order("price", { ascending: true, nullsFirst: false });
-  else if (sort === "price_desc") query = query.order("price", { ascending: false, nullsFirst: false });
-  else query = query.order("created_at", { ascending: false });
-  return query;
-}
-
-// 一致する性別ターゲットの商品を優先し、残りを他の商品で埋める
+// 一致する性別ターゲットの商品を優先し、残りを他の商品で埋める（キャッシュされたフィードAPI経由）
 async function fetchFeedPage(
   category: string, sort: SortOption, target: string | null, matchOffset: number, restOffset: number
 ): Promise<{ items: ProductRow[]; matchConsumed: number; restConsumed: number; error: unknown }> {
-  if (!target) {
-    const { data, error } = await buildFeedQuery(category, sort).range(restOffset, restOffset + PAGE_SIZE - 1);
-    return { items: data || [], matchConsumed: 0, restConsumed: (data || []).length, error };
+  const params = new URLSearchParams({
+    category, sort, matchOffset: String(matchOffset), restOffset: String(restOffset),
+  });
+  if (target) params.set("target", target);
+  try {
+    const res = await fetch(`/api/feed?${params.toString()}`);
+    if (!res.ok) return { items: [], matchConsumed: 0, restConsumed: 0, error: new Error(`feed fetch failed: ${res.status}`) };
+    const data = await res.json();
+    return { items: data.items || [], matchConsumed: data.matchConsumed || 0, restConsumed: data.restConsumed || 0, error: null };
+  } catch (error) {
+    return { items: [], matchConsumed: 0, restConsumed: 0, error };
   }
-  const { data: matchData, error: matchError } = await buildFeedQuery(category, sort)
-    .eq("target_gender", target).range(matchOffset, matchOffset + PAGE_SIZE - 1);
-  const matchResults = matchData || [];
-  const remaining = PAGE_SIZE - matchResults.length;
-  let restResults: ProductRow[] = [];
-  let restError = null;
-  if (remaining > 0) {
-    const { data: restData, error } = await buildFeedQuery(category, sort)
-      .neq("target_gender", target).range(restOffset, restOffset + remaining - 1);
-    restResults = restData || [];
-    restError = error;
-  }
-  return {
-    items: [...matchResults, ...restResults],
-    matchConsumed: matchResults.length,
-    restConsumed: restResults.length,
-    error: matchError || restError,
-  };
 }
 
 export default function Home() {
@@ -87,12 +67,11 @@ export default function Home() {
     (async () => {
       try {
         const deviceId = getDeviceId();
-        const [{ data: vendorRows, error: vendorErr }, feedResult, { data: likeRows, error: likeErr }] = await Promise.all([
-          supabase.from("vendors_public").select("*"),
+        const [vendorRows, feedResult, { data: likeRows, error: likeErr }] = await Promise.all([
+          fetch("/api/vendors").then(r => r.json()) as Promise<VendorRow[]>,
           fetchFeedPage("all", "new", targetGender.current, 0, 0),
           supabase.from("likes").select("product_id").eq("device_id", deviceId),
         ]);
-        if (vendorErr) console.error("vendors_public fetch error:", vendorErr);
         if (feedResult.error) console.error("products fetch error:", feedResult.error);
         if (likeErr) console.error("likes fetch error:", likeErr);
         const map: Record<string, VendorRow> = {};
